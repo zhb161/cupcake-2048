@@ -46,14 +46,14 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    padding: 20px;
+    padding-top: 100px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0 50px;
 }
 
 /* Header Styles */
@@ -61,8 +61,16 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0;
-    margin-bottom: 30px;
+    padding: 15px 50px;
+    background-color: var(--background-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    height: 80px;
+    transition: background-color 0.3s ease;
 }
 
 .logo h1 {
@@ -77,7 +85,7 @@ header {
     background-color: var(--accent-color);
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 12px;
     margin-left: 10px;
     border-radius: 20px;
     cursor: pointer;
@@ -101,27 +109,27 @@ main {
 /* Game Container */
 .game-container {
     background-color: var(--primary-color);
-    padding: 20px;
+    padding: 15px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
 
 .game-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    min-height: 20px;
 }
 
 .scores-container {
     display: flex;
-    gap: 20px;
+    gap: 15px;
+    align-items: center;
 }
 
 .score, .best-score {
     background-color: var(--tertiary-color);
     color: white;
-    padding: 10px 15px;
+    padding: 8px 12px;
     border-radius: 5px;
     text-align: center;
     min-width: 100px;
@@ -296,29 +304,35 @@ main {
 /* Personal Best Section */
 .personal-best {
     background-color: var(--secondary-color);
-    padding: 20px;
-    border-radius: 10px;
+    padding: 10px;
+    border-radius: 8px;
     color: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
 
 .personal-best h2 {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     text-align: center;
+    font-size: 1.2rem;
 }
 
 .record-card {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 10px;
     transition: background-color 0.3s ease;
 }
 
 .record-item {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.record-item:last-child {
+    margin-bottom: 0;
 }
 
 .record-label {
@@ -385,43 +399,69 @@ footer {
 
 /* Responsive Design */
 @media (max-width: 900px) {
+    body {
+        padding-top: 120px;
+    }
+    header {
+        flex-wrap: wrap;
+        height: auto;
+        justify-content: center;
+        padding: 10px 30px;
+    }
+    .container {
+        padding: 0 30px;
+    }
+    .logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .scores-container {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top:10px;
+    }
+    .main-nav {
+        order: 2;
+        width: 100%;
+        text-align: center;
+    }
     main {
         grid-template-columns: 1fr;
     }
-    
     .seo-content {
         grid-template-columns: 1fr;
     }
-    
     .cupcake-item {
         width: calc(33.333% - 10px);
     }
 }
 
 @media (max-width: 600px) {
+    body {
+        padding-top: 150px;
+    }
     header {
-        flex-direction: column;
-        text-align: center;
+        padding: 10px 20px;
     }
-    
-    .logo {
-        margin-bottom: 15px;
+    .container {
+        padding: 0 20px;
     }
-    
+    .logo h1 {
+        font-size: 2rem;
+    }
     .main-nav button {
         margin: 5px;
     }
-    
     .grid-background {
         gap: 10px;
         padding: 10px;
     }
-    
     .tile {
         width: calc(25% - 10px);
         height: calc(25% - 10px);
     }
-    
     .cupcake-item {
         width: calc(50% - 7.5px);
     }
