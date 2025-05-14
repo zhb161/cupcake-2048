@@ -438,40 +438,39 @@ class HTMLActuator {
     // Add a tile to the UI
     addTile(tile) {
         const element = document.createElement('div');
-        const position = { x: tile.x, y: tile.y };
+        const targetPosition = { x: tile.x, y: tile.y };
         const value = tile.value;
 
         element.classList.add('tile', `tile-${value}`);
 
-        this.applyPosition(element, position);
-
-        // Add merged-from class if applicable
-        if (tile.mergedFrom) {
-            element.classList.add('tile-merged');
-
-            // Render the tiles that merged
-            tile.mergedFrom.forEach(merged => {
-                const mergedElement = document.createElement('div');
-                mergedElement.classList.add('tile', `tile-${merged.value}`);
-                // Position the merged-from tiles based on their previous position
-                // This requires applyPosition to handle previousPosition correctly if needed,
-                // or simply ensure merged tiles appear from their old spots briefly.
-                // For simplicity, we position them at their saved previous position.
-                if (merged.previousPosition) {
-                    this.applyPosition(mergedElement, merged.previousPosition);
-                } else {
-                     // Fallback if somehow previousPosition is not set for a merged tile
-                    this.applyPosition(mergedElement, position); 
-                }
-                this.tileContainer.appendChild(mergedElement);
-            });
-        } else if (!tile.previousPosition) {
-            // New tile
-            element.classList.add('tile-new');
+        let renderAtPrevious = false;
+        if (tile.previousPosition && 
+            (tile.previousPosition.x !== targetPosition.x || tile.previousPosition.y !== targetPosition.y)) {
+            // This tile has moved from a different grid cell
+            renderAtPrevious = true;
+            this.applyPosition(element, tile.previousPosition); // Render at old spot first
+        } else {
+            // New tile, or a merged tile appearing at its spot, or a tile that didn't move.
+            this.applyPosition(element, targetPosition);
         }
 
-        // Add the inner part of the tile to the element
+        // Add to DOM - Add to DOM early so CSS can apply initial state before transition for move
         this.tileContainer.appendChild(element);
+
+        // If it was rendered at previous, now trigger the move to the target position
+        if (renderAtPrevious) {
+            window.requestAnimationFrame(() => {
+                this.applyPosition(element, targetPosition); // Animate to new spot
+            });
+        }
+
+        // Handle animations for new tiles and merged tiles (pop/appear)
+        if (tile.mergedFrom) { // This is the *resulting* tile of a merge
+            element.classList.add('tile-merged'); // Pop animation
+        } else if (!tile.previousPosition && !tile.mergedFrom) { 
+            // A brand new tile (not from merge, no previous logical grid position)
+            element.classList.add('tile-new'); // Appear animation
+        }
     }
 
     // Apply a position to a tile element

@@ -205,7 +205,7 @@ main {
     text-align: center;
     font-weight: bold;
     z-index: 10;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: left 0.1s ease-out, top 0.1s ease-out, transform 0.2s ease, opacity 0.2s ease;
 }
 
 .tile-2 { background-image: url('../img/2-vanilla-cupcake.jpg'); }
