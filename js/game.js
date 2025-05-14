@@ -653,20 +653,31 @@ class GameManager {
         this.inputManager = new KeyboardInputManager();
         this.actuator = new HTMLActuator();
         this.game = new Game(this.actuator);
+        this.solver = new Solver(this.game); // Initialize AI Solver
+
+        this.isAutoPlaying = false;
+        this.autoPlayIntervalId = null;
+        this.autoPlayDelay = 500; // Milliseconds between AI moves
 
         this.inputManager.on('move', this.move.bind(this));
         this.inputManager.on('restart', this.restart.bind(this));
-        this.inputManager.on('keepPlaying', this.keepPlaying.bind(this)); // Added for continue button if any
+        this.inputManager.on('keepPlaying', this.keepPlaying.bind(this));
         this.inputManager.on('theme-toggle', this.toggleTheme.bind(this));
+
+        // Auto Play Button
+        const autoPlayButton = document.getElementById('auto-play-btn');
+        autoPlayButton.addEventListener('click', this.toggleAutoPlay.bind(this));
     }
 
-    // Move in a direction
     move(direction) {
+        if (this.isAutoPlaying) return; // Disable manual moves during auto play
         this.game.move(direction);
     }
 
-    // Restart the game
     restart() {
+        if (this.isAutoPlaying) {
+            this.stopAutoPlay(); // Stop AI if game is restarted
+        }
         this.game.restart();
     }
 
@@ -675,10 +686,355 @@ class GameManager {
         this.actuator.clearMessage();
     }
 
-    // Toggle theme
+    toggleAutoPlay() {
+        this.isAutoPlaying = !this.isAutoPlaying;
+        const autoPlayButton = document.getElementById('auto-play-btn');
+        if (this.isAutoPlaying) {
+            autoPlayButton.textContent = 'Stop Auto';
+            autoPlayButton.classList.add('active'); // Optional: for styling active button
+            this.startAutoPlay();
+        } else {
+            autoPlayButton.textContent = 'Auto Play';
+            autoPlayButton.classList.remove('active');
+            this.stopAutoPlay();
+        }
+    }
+
+    startAutoPlay() {
+        if (this.game.over || (this.game.won && !this.game.keepPlaying)) {
+            this.isAutoPlaying = false; // Can't start if game is already over
+            document.getElementById('auto-play-btn').textContent = 'Auto Play';
+            document.getElementById('auto-play-btn').classList.remove('active');
+            return;
+        }
+        this.autoPlayIntervalId = setInterval(() => {
+            this.autoPlayStep();
+        }, this.autoPlayDelay);
+    }
+
+    stopAutoPlay() {
+        clearInterval(this.autoPlayIntervalId);
+        this.autoPlayIntervalId = null;
+        if (this.isAutoPlaying) { // Ensure toggleAutoPlay is called if stopped programmatically
+            this.isAutoPlaying = false;
+            const autoPlayButton = document.getElementById('auto-play-btn');
+            autoPlayButton.textContent = 'Auto Play';
+            autoPlayButton.classList.remove('active');
+        }
+    }
+
+    autoPlayStep() {
+        if (this.game.over || (this.game.won && !this.game.keepPlaying)) {
+            this.stopAutoPlay();
+            return;
+        }
+
+        const bestMove = this.solver.findBestMove(2); // Using a search depth of 2
+        if (bestMove !== -1) { // -1 could signify no good move or error
+            this.game.move(bestMove);
+        } else {
+            // No valid moves found by AI, or game might be stuck in a loop for the AI
+            // This might happen if all moves lead to an immediate game over, or AI can't improve score.
+            // For a simple AI, it might just stop.
+            console.log("AI couldn't find a move or game is effectively over for AI.");
+            this.stopAutoPlay(); 
+        }
+
+        // Check again if game ended after AI move
+        if (this.game.over || (this.game.won && !this.game.keepPlaying)) {
+            this.stopAutoPlay();
+        }
+    }
+
     toggleTheme() {
         document.body.classList.toggle('dark-theme');
         localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    }
+}
+
+// AI Solver Class (Simple Heuristic)
+class Solver {
+    constructor(gameInstance) {
+        this.game = gameInstance; // Reference to the main game instance
+    }
+
+    // searchDepth: How many of AI's own moves to look ahead.
+    // e.g., depth 1: AI moves -> Chance tile -> Evaluate
+    // e.g., depth 2: AI moves -> Chance tile -> AI moves -> Chance tile -> Evaluate
+    // A searchDepth of N means N AI moves are optimized.
+    findBestMove(searchDepth = 2) {
+        let bestOverallScore = -Infinity;
+        let bestMove = -1;
+
+        // Iterate through each of the 4 possible initial moves
+        for (let direction = 0; direction < 4; direction++) {
+            // Create a fresh copy of the current game state for this top-level simulation
+            const tempGame = this._copyGame(this.game);
+            const moved = this._simulateMoveOnTempGame(tempGame, direction);
+
+            if (moved) {
+                // After AI's first move (depth 1), it's chance node's turn.
+                // The recursive search will then look for (searchDepth - 1) more AI moves.
+                const scoreForThisDirection = this._expectiSearch(tempGame.grid, tempGame.score, searchDepth -1);
+                if (scoreForThisDirection > bestOverallScore) {
+                    bestOverallScore = scoreForThisDirection;
+                    bestMove = direction;
+                }
+            }
+        }
+        
+        if (bestMove === -1 && this.game.movesAvailable()) {
+             // Fallback: if no move improved score (all led to -Infinity or same low score)
+             // but game is not over, pick first valid move.
+            for (let direction = 0; direction < 4; direction++) {
+                const tempGameCheck = this._copyGame(this.game);
+                if (this._simulateMoveOnTempGame(tempGameCheck, direction)) {
+                    // console.log("Fallback: taking first available move:", direction);
+                    return direction; 
+                }
+            }
+        }
+        return bestMove;
+    }
+
+    // Simulates AI's turn: maximize score
+    // Depth here means remaining AI plies (turns) to search *after* the preceding chance node.
+    _aiTurnSearch(grid, score, depth) {
+        const terminalState = this._isTerminal(grid);
+        // If depth is 0, it means we've completed the desired number of AI moves. Evaluate.
+        // Or if game is over.
+        if (depth < 0 || terminalState.over) { // depth < 0 should not happen with correct calls, but as safeguard
+             return this.evaluateBoard(grid, score);
+        }
+        if (depth === 0) {
+             return this.evaluateBoard(grid, score);
+        }
+
+
+        let maxScore = -Infinity;
+        let moveMade = false;
+
+        for (let direction = 0; direction < 4; direction++) {
+            const tempGame = { grid: this._cloneGrid(grid), score: score, over: false, won: false };
+            const moved = this._simulateMoveOnTempGame(tempGame, direction);
+
+            if (moved) {
+                moveMade = true;
+                // After AI's move, it's chance node's turn.
+                // The next call to expectiSearch will lead to an AI search of (depth - 1).
+                maxScore = Math.max(maxScore, this._expectiSearch(tempGame.grid, tempGame.score, depth -1));
+            }
+        }
+        // If no move was possible from this state (e.g. a "stuck" intermediate state),
+        // evaluate the current board.
+        return moveMade ? maxScore : this.evaluateBoard(grid, score);
+    }
+
+    // Simulates Chance node's turn: calculate expected score
+    // Depth here refers to the remaining AI plies to search *after* this chance node.
+    _expectiSearch(grid, score, depth) {
+        const terminalState = this._isTerminal(grid);
+        if (terminalState.over || depth < 0) { // depth < 0 means we've gone past search limit
+            return this.evaluateBoard(grid, score);
+        }
+
+        const availableCells = grid.availableCells();
+        if (availableCells.length === 0 && !terminalState.over) {
+            // This state should ideally be caught by terminalState.over if no cells are available
+            // and no moves can be made. If cells are 0 but moves exist (impossible), it's an issue.
+            // For robustness, evaluate.
+            return this.evaluateBoard(grid, score);
+        }
+        if (availableCells.length === 0 && terminalState.over) {
+             return this.evaluateBoard(grid, score);
+        }
+
+
+        let totalExpectedScore = 0;
+        
+        availableCells.forEach(cellPos => {
+            // Scenario 1: A '2' tile appears
+            const gridWith2 = this._cloneGrid(grid);
+            gridWith2.insertTile(new Tile(cellPos, 2));
+            // After chance tile, AI makes its next move (depth is already reduced for this level of AI search)
+            totalExpectedScore += 0.9 * this._aiTurnSearch(gridWith2, score, depth);
+
+            // Scenario 2: A '4' tile appears
+            const gridWith4 = this._cloneGrid(grid);
+            gridWith4.insertTile(new Tile(cellPos, 4));
+            totalExpectedScore += 0.1 * this._aiTurnSearch(gridWith4, score, depth);
+        });
+        
+        return availableCells.length > 0 ? totalExpectedScore / availableCells.length : this.evaluateBoard(grid, score);
+    }
+
+
+    _copyGame(gameInstance) {
+        const newGrid = this._cloneGrid(gameInstance.grid);
+        return {
+            grid: newGrid,
+            score: gameInstance.score,
+            over: gameInstance.over, // Current 'over' state might not be relevant for simulation start
+            won: gameInstance.won   // Same for 'won'
+        };
+    }
+
+    _cloneGrid(gridInstance) {
+        const newGrid = new Grid(gridInstance.size);
+        gridInstance.eachCell((x, y, tile) => {
+            if (tile) {
+                newGrid.insertTile(new Tile({ x: x, y: y }, tile.value));
+            }
+        });
+        return newGrid;
+    }
+
+    _simulateMoveOnTempGame(tempGame, direction) {
+        const grid = tempGame.grid;
+        let score = tempGame.score; // Use let as score can change
+        const vector = this.game.getVector(direction);
+        const traversals = this.game.buildTraversals(vector);
+        let moved = false;
+
+        grid.eachCell((x, y, tile) => {
+            if (tile) tile.mergedFrom = null;
+        });
+
+        traversals.x.forEach(x => {
+            traversals.y.forEach(y => {
+                const cell = { x, y };
+                let tile = grid.cellContent(cell); // Use let, as tile object in cell might change due to merge
+
+                if (tile) {
+                    const positions = this.game.findFarthestPosition.call({ grid: grid }, cell, vector);
+                    const nextCellDesc = grid.cellContent(positions.next);
+
+                    if (nextCellDesc && nextCellDesc.value === tile.value && !nextCellDesc.mergedFrom) {
+                        const merged = new Tile(positions.next, tile.value * 2);
+                        merged.mergedFrom = [tile, nextCellDesc];
+
+                        grid.insertTile(merged);
+                        grid.removeTile(tile); // Remove the original tile that moved
+                        grid.removeTile(nextCellDesc); // Remove the tile it merged with
+
+                        score += merged.value;
+                        moved = true;
+                    } else {
+                        const originalCellX = tile.x;
+                        const originalCellY = tile.y;
+                        const targetCellX = positions.farthest.x;
+                        const targetCellY = positions.farthest.y;
+
+                        if (originalCellX !== targetCellX || originalCellY !== targetCellY) {
+                            grid.cells[originalCellX][originalCellY] = null;
+                            tile.updatePosition(positions.farthest);
+                            grid.cells[targetCellX][targetCellY] = tile;
+                            moved = true;
+                        }
+                    }
+                }
+            });
+        });
+
+        tempGame.score = score;
+        // Check for game over state on this tempGame AFTER the move
+        if (!this._movesAvailable(grid)) {
+            tempGame.over = true;
+        }
+        // Check for win, though AI typically plays past it
+        grid.eachCell((x,y,tile) => { if(tile && tile.value === 2048) tempGame.won = true;});
+
+        return moved;
+    }
+
+    _movesAvailable(grid) {
+        if (grid.availableCells().length > 0) return true;
+
+        for (let x = 0; x < grid.size; x++) {
+            for (let y = 0; y < grid.size; y++) {
+                const tile = grid.cellContent({ x, y });
+                if (tile) {
+                    for (let direction = 0; direction < 4; direction++) {
+                        const vector = this.game.getVector(direction);
+                        const cell = { x: x + vector.x, y: y + vector.y };
+                        const other = grid.cellContent(cell);
+                        if (other && other.value === tile.value) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    _isTerminal(grid) {
+        return { over: !this._movesAvailable(grid) };
+    }
+
+    // evaluateBoard should be self-contained or use this.game for static properties only
+    evaluateBoard(grid, currentScore) {
+        // if (!moved) return -Infinity; // Removed this, evaluation is for a static board state
+
+        let score = currentScore * 10; // Prioritize raw score gained
+        let emptyCells = 0;
+        let smoothness = 0;
+        let monotonicity = 0;
+        let maxValue = 0;
+
+        grid.eachCell((x, y, tile) => {
+            if (tile) {
+                maxValue = Math.max(maxValue, tile.value);
+                // Smoothness (horizontal and vertical)
+                // Right neighbor
+                if (x + 1 < grid.size && grid.cellContent({x: x + 1, y: y})) {
+                    smoothness -= Math.abs(tile.value - grid.cellContent({x: x + 1, y: y}).value);
+                }
+                // Down neighbor
+                if (y + 1 < grid.size && grid.cellContent({x: x, y: y + 1})) {
+                    smoothness -= Math.abs(tile.value - grid.cellContent({x: x, y: y + 1}).value);
+                }
+            } else {
+                emptyCells++;
+            }
+        });
+
+        score += emptyCells * 200; // Heavily prioritize empty cells
+        score += smoothness * 10;   // Prioritize smooth boards
+        // score += maxValue * 5; // Prioritize higher max tile, but might conflict with merging strategy
+
+        // Monotonicity (simple version: sum of values in rows/cols, prefer increasing)
+        // This is a very basic check, more advanced checks would look at edges specifically.
+        for (let i = 0; i < grid.size; i++) {
+            let currentRow = 0;
+            let currentCol = 0;
+            let prevRowVal = 0;
+            let prevColVal = 0;
+            for (let j = 0; j < grid.size; j++) {
+                const rowTile = grid.cellContent({x: j, y: i}); // Iterate through row i
+                const colTile = grid.cellContent({x: i, y: j}); // Iterate through col i
+                if (rowTile) {
+                    currentRow += rowTile.value;
+                    if (rowTile.value >= prevRowVal) monotonicity += rowTile.value * 0.1; // Reward increasing
+                    else monotonicity -= rowTile.value * 0.5; // Penalize decreasing
+                    prevRowVal = rowTile.value;
+                }
+                if (colTile) {
+                    currentCol += colTile.value;
+                     if (colTile.value >= prevColVal) monotonicity += colTile.value * 0.1;
+                    else monotonicity -= colTile.value * 0.5;
+                    prevColVal = colTile.value;
+                }
+            }
+        }
+        score += monotonicity * 2;
+        
+        // Preference for keeping high values in a corner (e.g. bottom-right)
+        if(grid.cellContent({x: grid.size-1, y: grid.size-1})){ 
+             score += grid.cellContent({x: grid.size-1, y: grid.size-1}).value * 20;
+        }
+
+        return score;
     }
 }
 
