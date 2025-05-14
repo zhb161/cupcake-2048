@@ -96,6 +96,13 @@ class Game {
         }
 
         this.updateScoreDisplay();
+
+        // Clear the message container before actuating, 
+        // especially if game is ongoing (not over and not won or won but keepPlaying)
+        if (!this.over && (!this.won || this.keepPlaying)) {
+            this.actuator.clearMessage();
+        }
+
         this.actuator.actuate(this.grid, {
             score: this.score,
             over: this.over,
@@ -262,6 +269,7 @@ class Game {
 
     // Restart the game
     restart() {
+        this.actuator.clearMessage(); // Clear message before setup
         this.incrementGamesPlayed();
         this.score = 0;
         this.over = false;
@@ -514,15 +522,17 @@ class HTMLActuator {
     // Display a game message
     message(won) {
         const type = won ? 'game-won' : 'game-over';
-        const message = won ? 'You win!' : 'Game over!';
+        const messageText = won ? 'You win!' : 'Game over!';
 
-        this.messageContainer.classList.add(type);
-        this.messageContainer.querySelector('p').textContent = message;
+        // this.messageContainer.classList.add(type);
+        this.messageContainer.classList.add('active', type); // Use 'active' to control visibility
+        this.messageContainer.querySelector('p').textContent = messageText;
     }
 
     // Clear the game message
     clearMessage() {
-        this.messageContainer.classList.remove('game-won', 'game-over');
+        // this.messageContainer.classList.remove('game-won', 'game-over');
+        this.messageContainer.classList.remove('active', 'game-won', 'game-over');
     }
 }
 
@@ -647,6 +657,7 @@ class GameManager {
 
         this.inputManager.on('move', this.move.bind(this));
         this.inputManager.on('restart', this.restart.bind(this));
+        this.inputManager.on('keepPlaying', this.keepPlaying.bind(this)); // Added for continue button if any
         this.inputManager.on('theme-toggle', this.toggleTheme.bind(this));
     }
 
@@ -658,6 +669,11 @@ class GameManager {
     // Restart the game
     restart() {
         this.game.restart();
+    }
+
+    keepPlaying() {
+        this.game.keepPlaying = true;
+        this.actuator.clearMessage();
     }
 
     // Toggle theme

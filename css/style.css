@@ -248,57 +248,87 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(248, 177, 149, 0.8);
+    background: rgba(248, 177, 149, 0.85);
     z-index: 30;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
     border-radius: 6px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.game-message.active {
+    display: flex;
+    opacity: 1;
 }
 
 .game-message p {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    color: var(--accent-color);
 }
 
 .game-message.game-won {
-    background: rgba(237, 194, 46, 0.8);
+    background: rgba(246, 114, 128, 0.85);
+}
+
+.game-message.game-won p {
     color: white;
-    display: flex;
 }
 
 .game-message.game-over {
-    background: rgba(192, 108, 132, 0.8);
+    background: rgba(246, 114, 128, 0.85);
+}
+
+.game-message.game-over p {
     color: white;
-    display: flex;
 }
 
 .dark-theme .game-message.game-won {
-    background: rgba(234, 172, 139, 0.8);
+    background: rgba(234, 172, 139, 0.85);
+}
+
+.dark-theme .game-message.game-won p {
+    color: var(--background-color);
 }
 
 .dark-theme .game-message.game-over {
-    background: rgba(229, 107, 111, 0.8);
+    background: rgba(229, 107, 111, 0.85);
+}
+
+.dark-theme .game-message.game-over p {
+    color: white;
 }
 
 .game-message-buttons button {
     background-color: var(--accent-color);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
+    padding: 12px 25px;
+    border-radius: 25px;
     cursor: pointer;
     font-family: var(--font-family);
-    font-weight: 600;
+    font-weight: 700;
     transition: all 0.3s ease;
+    font-size: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
 .game-message-buttons button:hover {
     background-color: var(--tertiary-color);
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.dark-theme .game-message-buttons button {
+    background-color: var(--tertiary-color);
+}
+
+.dark-theme .game-message-buttons button:hover {
+    background-color: var(--secondary-color);
 }
 
 /* Personal Best Section */
