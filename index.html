@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Cupcake 2048 - A delicious twist on the classic 2048 game featuring beautiful cupcakes. Combine cupcakes to reach the ultimate 2048 cupcake!">
+    <title>Cupcake 2048 - Sweet Puzzle Game</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Cupcake 2048</h1>
+            </div>
+            <nav class="main-nav">
+                <button id="new-game-btn">New Game</button>
+                <button id="theme-toggle">Change Theme</button>
+            </nav>
+        </header>
+
+        <main>
+            <section class="game-container">
+                <div class="game-header">
+                    <div class="scores-container">
+                        <div class="score">
+                            <div class="score-title">SCORE</div>
+                            <div id="current-score">0</div>
+                        </div>
+                        <div class="best-score">
+                            <div class="score-title">BEST</div>
+                            <div id="best-score">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-intro">
+                    <p>Join cupcakes to create the ultimate 2048 cupcake!</p>
+                    <p>Use arrow keys or swipe to move.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="grid-background">
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                        <div class="grid-cell"></div>
+                    </div>
+                    <div class="grid-tiles"></div>
+                </div>
+
+                <div class="game-message">
+                    <p></p>
+                    <div class="game-message-buttons">
+                        <button id="retry-button">Try again</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="personal-best">
+                <h2>Your Records</h2>
+                <div class="record-card">
+                    <div class="record-item">
+                        <span class="record-label">All-Time Best:</span>
+                        <span id="all-time-best">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">Best Date:</span>
+                        <span id="best-date">-</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">Games Played:</span>
+                        <span id="games-played">0</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <section class="seo-content">
+            <div class="game-info">
+                <h2>About Cupcake 2048</h2>
+                <p>Cupcake 2048 is a delicious twist on the classic 2048 puzzle game. Instead of numbers, you'll be combining adorable cupcakes to create even more magnificent treats!</p>
+                <p>Each cupcake represents a number in the original 2048 game. Combine two identical cupcakes to create the next level of sweet treat. Can you create the ultimate 2048 Christmas cupcake?</p>
+            </div>
+
+            <div class="how-to-play">
+                <h2>How to Play</h2>
+                <ul>
+                    <li>Use your arrow keys or swipe to move all cupcakes in one direction</li>
+                    <li>When two identical cupcakes touch, they merge into the next level cupcake</li>
+                    <li>Start with simple vanilla cupcakes and work your way up to the magnificent Christmas cupcake</li>
+                    <li>Try to reach the 2048 cupcake with as few moves as possible</li>
+                </ul>
+            </div>
+
+            <div class="cupcake-gallery">
+                <h2>Cupcake Gallery</h2>
+                <p>Discover all the delicious cupcakes you can create in this game:</p>
+                <div class="cupcake-list">
+                    <div class="cupcake-item">
+                        <img src="img/2-vanilla-cupcake.jpg" alt="2 - Vanilla Cupcake" width="80" height="80">
+                        <p>2 - Vanilla Cupcake</p>
+                    </div>
+                    <div class="cupcake-item">
+                        <img src="img/4-strawberry-vanilla-cupcake.jpg" alt="4 - Strawberry Vanilla Cupcake" width="80" height="80">
+                        <p>4 - Strawberry Vanilla</p>
+                    </div>
+                    <div class="cupcake-item">
+                        <img src="img/8-lemon-cupcake.jpg" alt="8 - Lemon Cupcake" width="80" height="80">
+                        <p>8 - Lemon Cupcake</p>
+                    </div>
+                    <div class="cupcake-item">
+                        <img src="img/16-red-velvet-cupcake.jpg" alt="16 - Red Velvet Cupcake" width="80" height="80">
+                        <p>16 - Red Velvet</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tips-strategies">
+                <h2>Tips & Strategies</h2>
+                <ul>
+                    <li>Keep your highest value cupcake in a corner</li>
+                    <li>Work in a pattern - try moving in a specific sequence</li>
+                    <li>Plan ahead and think about how cupcakes will combine</li>
+                    <li>Don't rush - take your time to consider each move</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2023 Cupcake 2048 - A delicious puzzle game</p>
+        </footer>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html> 
