@@ -459,6 +459,29 @@ main {
     color: var(--text-color);
 }
 
+/* Cupcake Gallery Locked Item Styling */
+.cupcake-item.locked img {
+    opacity: 0.15;
+    filter: grayscale(90%) blur(1px); /* Make it very faint, desaturated and slightly blurred */
+    transition: opacity 0.3s ease, filter 0.3s ease; /* Smooth transition when unlocked */
+}
+
+.cupcake-item.locked p {
+    color: var(--grid-cell-color); /* Make the number very faint, like an empty cell background */
+    font-weight: normal; /* Less prominent */
+}
+
+/* Optional: Style for when an item is newly unlocked (can be timed with JS) */
+.cupcake-item.newly-unlocked {
+    animation: flashUnlock 0.8s ease-out;
+}
+
+@keyframes flashUnlock {
+    0% { transform: scale(1); box-shadow: 0 0 0px var(--accent-color); }
+    30% { transform: scale(1.05); box-shadow: 0 0 10px 3px var(--accent-color); }
+    100% { transform: scale(1); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); } /* Return to normal shadow */
+}
+
 /* SEO Content Section - Adjust if needed after gallery removal */
 .seo-content {
     margin-top: 50px;

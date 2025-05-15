@@ -277,6 +277,49 @@ class Game {
         this.keepPlaying = false;
         this.setup();
     }
+
+    // Add _tryMoveOnGrid to Game class for AI fallback, if not already present
+    // This is a simplified simulation for checking if a move is possible
+    // The actual SmartAI simulation is more complex. This is just for the fallback.
+    _tryMoveOnGrid(grid, direction) {
+        let moved = false;
+        const vector = this.getVector(direction);
+        const traversals = this.buildTraversals(vector);
+        let breakOuter = false; // Flag to break from outer loops
+
+        traversals.x.forEach(xPos => {
+            if (breakOuter) return;
+            traversals.y.forEach(yPos => {
+                if (breakOuter) return;
+                const cell = { x: xPos, y: yPos };
+                const tile = grid.cellContent(cell);
+                if (tile) {
+                    // Use a context for findFarthestPosition that matches what Game.move uses
+                    const contextForFindFarthest = { 
+                            grid: grid, 
+                            withinBounds: grid.withinBounds.bind(grid),
+                            cellAvailable: grid.cellAvailable.bind(grid)
+                        };
+                    const positions = this.findFarthestPosition.call(contextForFindFarthest, cell, vector);
+                    
+                    // Check if tile can move to a new empty spot
+                    if (positions.farthest.x !== cell.x || positions.farthest.y !== cell.y) {
+                        moved = true;
+                        breakOuter = true; // Set flag to break all loops
+                        return;
+                    }
+                    // Check if a merge is possible (simplified)
+                    const nextCell = grid.cellContent(positions.next);
+                    if (nextCell && nextCell.value === tile.value) {
+                        moved = true;
+                        breakOuter = true; // Set flag to break all loops
+                        return;
+                    }
+                }
+            });
+        });
+        return { grid, moved }; 
+    }
 }
 
 // Grid class
@@ -664,46 +707,55 @@ class GameManager {
         this.inputManager = new KeyboardInputManager();
         this.actuator = new HTMLActuator();
         this.game = new Game(this.actuator);
-        this.solver = new SmartAI(this.game); // Use the new SmartAI
+        this.solver = new SmartAI(this.game);
 
         this.isAutoPlaying = false;
         this.autoPlayIntervalId = null;
 
-        // AI Speed Settings
         this.SPEED_SLOW = 1000;
         this.SPEED_MEDIUM = 500;
         this.SPEED_FAST = 200;
-        this.autoPlaySpeedSetting = this.SPEED_MEDIUM; // Default to medium
-        this.autoPlayDelay = this.autoPlaySpeedSetting; 
+        this.autoPlaySpeedSetting = this.SPEED_MEDIUM;
+        this.autoPlayDelay = this.autoPlaySpeedSetting;
 
-        this.inputManager.on('move', this.move.bind(this));
+        // Cupcake Gallery Unlock State
+        this.unlockedCupcakes = new Set([2, 4]); // Default unlocked
+        this.localStorageKeyUnlocked = "cupcake2048_unlockedCupcakes";
+
+        this.inputManager.on('move', this.onUserMove.bind(this));
         this.inputManager.on('restart', this.restart.bind(this));
         this.inputManager.on('keepPlaying', this.keepPlaying.bind(this));
         this.inputManager.on('theme-toggle', this.toggleTheme.bind(this));
 
-        // Auto Play Button
         const autoPlayButton = document.getElementById('auto-play-btn');
         autoPlayButton.addEventListener('click', this.toggleAutoPlay.bind(this));
 
-        // AI Speed Control Buttons
         document.getElementById('ai-speed-slow').addEventListener('click', () => this.setAISpeed(this.SPEED_SLOW));
         document.getElementById('ai-speed-medium').addEventListener('click', () => this.setAISpeed(this.SPEED_MEDIUM));
         document.getElementById('ai-speed-fast').addEventListener('click', () => this.setAISpeed(this.SPEED_FAST));
         
-        this.loadAISpeedPreference(); // Load speed preference
-        this.updateSpeedButtonUI(); // Initialize UI for speed buttons
+        this.loadAISpeedPreference();
+        this.updateSpeedButtonUI();
+
+        this.loadUnlockedCupcakes(); // Load gallery state
+        this.scanGridAndUnlockRevealed(); // Initial scan
+        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
     }
 
-    move(direction) {
+    // Renamed from move to onUserMove to avoid clash with Game.move if Game instance needs to call a GM.move
+    onUserMove(direction) { 
         if (this.isAutoPlaying && direction !== undefined) return;
         this.game.move(direction);
+        this.scanGridAndUnlockRevealed(); // Scan after player move
     }
 
     restart() {
         if (this.isAutoPlaying) {
-            this.stopAutoPlay(); // Stop AI if game is restarted
+            this.stopAutoPlay();
         }
         this.game.restart();
+        this.scanGridAndUnlockRevealed(); // Scan after restart
+        // No need to update gallery display here, scanGridAndUnlockRevealed will if changes are made
     }
 
     keepPlaying() {
@@ -716,7 +768,7 @@ class GameManager {
         const autoPlayButton = document.getElementById('auto-play-btn');
         if (this.isAutoPlaying) {
             autoPlayButton.textContent = 'Stop Auto';
-            autoPlayButton.classList.add('active'); // Optional: for styling active button
+            autoPlayButton.classList.add('active');
             this.startAutoPlay();
         } else {
             autoPlayButton.textContent = 'Auto Play';
@@ -727,9 +779,10 @@ class GameManager {
 
     startAutoPlay() {
         if (this.game.over || (this.game.won && !this.game.keepPlaying)) {
-            this.isAutoPlaying = false; // Can't start if game is already over
-            document.getElementById('auto-play-btn').textContent = 'Auto Play';
-            document.getElementById('auto-play-btn').classList.remove('active');
+            this.isAutoPlaying = false; 
+            const autoPlayButton = document.getElementById('auto-play-btn');
+            autoPlayButton.textContent = 'Auto Play';
+            autoPlayButton.classList.remove('active');
             return;
         }
         this.autoPlayIntervalId = setInterval(() => {
@@ -740,19 +793,12 @@ class GameManager {
     stopAutoPlay() {
         clearInterval(this.autoPlayIntervalId);
         this.autoPlayIntervalId = null;
-        // Ensure isAutoPlaying is false BEFORE updating button text & class
-        // to prevent toggleAutoPlay from re-enabling it if called from elsewhere.
         const wasPlaying = this.isAutoPlaying;
         this.isAutoPlaying = false; 
 
         const autoPlayButton = document.getElementById('auto-play-btn');
         autoPlayButton.textContent = 'Auto Play';
         autoPlayButton.classList.remove('active');
-
-        // If it was playing, we ensure the state is fully reset.
-        // No need to call toggleAutoPlay() here as it might restart it.
-        // The primary 'Auto Play' button's state is handled.
-        // Speed button states are managed by setAISpeed and updateSpeedButtonUI.
     }
 
     autoPlayStep() {
@@ -761,33 +807,41 @@ class GameManager {
             return;
         }
 
-        if (!this.solver) { // Safety check if solver is not yet initialized
+        if (!this.solver) {
             console.error("Solver not initialized!");
             this.stopAutoPlay();
             return;
         }
 
-        const bestMove = this.solver.nextMove(); // New call for SmartAI
+        const bestMove = this.solver.nextMove();
         
         if (bestMove !== undefined && bestMove !== -1 && bestMove !== null) {
             this.game.move(bestMove);
+            this.scanGridAndUnlockRevealed(); // Scan after AI move
         } else {
             console.log("AI couldn't find a move. Attempting fallback.");
             let moved = false;
-            if (this.solver && this.solver.game) { // Check if solver and its game ref exist
+            if (this.solver && this.solver.game) { 
                  for (let i = 0; i < 4; i++) {
-                    if (this.game.isMoveAvailable(i)) { 
+                    // Check if game has isMoveAvailable, if not, this needs to be adapted
+                    // Assuming Game class has a method like isMovePossible(direction) or can simulate a move
+                    // For now, we'll rely on the AI to make valid moves, or game.move to handle invalid ones gracefully
+                    const tempGrid = this.game.grid.clone();
+                    const sim = this.game._tryMoveOnGrid(tempGrid, i); // A hypothetical method in Game
+                    if (sim.moved) { 
                          this.game.move(i);
+                         this.scanGridAndUnlockRevealed(); // Scan after AI fallback move
                          moved = true;
                          break;
                     }
                  }
             }
             if (!moved) {
-            console.log("Fallback failed. Stopping AI."); this.stopAutoPlay(); }
+                console.log("Fallback failed. Stopping AI."); 
+                this.stopAutoPlay(); 
+            }
         }
 
-        // Check again if game ended after AI move
         if (this.game.over || (this.game.won && !this.game.keepPlaying)) {
             this.stopAutoPlay();
         }
@@ -801,12 +855,12 @@ class GameManager {
     setAISpeed(speed) {
         this.autoPlaySpeedSetting = speed;
         this.autoPlayDelay = speed;
-        localStorage.setItem('aiPlaySpeed', speed); // Save preference
+        localStorage.setItem('aiPlaySpeed', speed);
         this.updateSpeedButtonUI();
 
         if (this.isAutoPlaying) {
-            clearInterval(this.autoPlayIntervalId); // Stop current interval
-            this.autoPlayIntervalId = setInterval(() => { // Restart with new delay
+            clearInterval(this.autoPlayIntervalId);
+            this.autoPlayIntervalId = setInterval(() => {
                 this.autoPlayStep();
             }, this.autoPlayDelay);
         }
@@ -818,7 +872,6 @@ class GameManager {
             this.autoPlaySpeedSetting = parseInt(savedSpeed, 10);
             this.autoPlayDelay = this.autoPlaySpeedSetting;
         }
-        // Default is already set if nothing in localStorage
     }
 
     updateSpeedButtonUI() {
@@ -833,6 +886,79 @@ class GameManager {
         } else if (this.autoPlaySpeedSetting === this.SPEED_FAST) {
             document.getElementById('ai-speed-fast').classList.add('active');
         }
+    }
+
+    // --- Cupcake Gallery Unlock Logic ---
+    loadUnlockedCupcakes() {
+        const saved = localStorage.getItem(this.localStorageKeyUnlocked);
+        if (saved) {
+            try {
+                const unlockedArray = JSON.parse(saved);
+                if (Array.isArray(unlockedArray)) {
+                    this.unlockedCupcakes = new Set(unlockedArray.map(Number)); // Ensure numbers
+                    // Ensure 2 and 4 are always present after loading
+                    this.unlockedCupcakes.add(2);
+                    this.unlockedCupcakes.add(4);
+                } else {
+                    this.unlockedCupcakes = new Set([2, 4]); // Fallback if not an array
+                }
+            } catch (e) {
+                console.error("Error loading unlocked cupcakes:", e);
+                this.unlockedCupcakes = new Set([2, 4]); // Fallback on error
+            }
+        } else {
+            // If nothing saved, defaults are already set (2, 4)
+        }
+    }
+
+    saveUnlockedCupcakes() {
+        localStorage.setItem(this.localStorageKeyUnlocked, JSON.stringify(Array.from(this.unlockedCupcakes)));
+    }
+
+    checkAndUnlockCupcake(value) {
+        if (!this.unlockedCupcakes.has(value)) {
+            this.unlockedCupcakes.add(value);
+            this.saveUnlockedCupcakes();
+            this.updateCupcakeGalleryDisplay(value); // Pass the newly unlocked value for animation
+            return true; // Indicates a new cupcake was unlocked
+        }
+        return false; // Already unlocked
+    }
+
+    scanGridAndUnlockRevealed() {
+        if (!this.game || !this.game.grid) return;
+        let newUnlockHappened = false;
+        this.game.grid.eachCell((x, y, tile) => {
+            if (tile) {
+                if (this.checkAndUnlockCupcake(tile.value)) {
+                    newUnlockHappened = true;
+                }
+            }
+        });
+        // No need to call updateCupcakeGalleryDisplay if checkAndUnlockCupcake does it
+        // However, if checkAndUnlockCupcake only updates one item, a full refresh might be desired by some logic
+        // For now, checkAndUnlockCupcake handles its own update including animation trigger
+    }
+
+    updateCupcakeGalleryDisplay(newlyUnlockedValue = null) {
+        const galleryItems = document.querySelectorAll('.cupcake-gallery .cupcake-item');
+        galleryItems.forEach(item => {
+            const value = parseInt(item.dataset.value, 10);
+            item.classList.remove('newly-unlocked'); // Clear previous animation class
+
+            if (this.unlockedCupcakes.has(value)) {
+                item.classList.remove('locked');
+                if (value === newlyUnlockedValue) {
+                    // Apply animation for the newly unlocked item
+                    item.classList.add('newly-unlocked');
+                    // Consider removing the class after animation, or rely on animation-fill-mode
+                    // For simplicity, we might remove it after a timeout if CSS doesn't handle it well
+                    // setTimeout(() => item.classList.remove('newly-unlocked'), 800); // Match animation duration
+                }
+            } else {
+                item.classList.add('locked');
+            }
+        });
     }
 }
 
