@@ -371,6 +371,17 @@ class Grid {
         return position.x >= 0 && position.x < this.size &&
                position.y >= 0 && position.y < this.size;
     }
+
+    // Clone the grid
+    clone() {
+        const newGrid = new Grid(this.size);
+        this.eachCell((x, y, tile) => {
+            if (tile) {
+                newGrid.insertTile(new Tile({ x: x, y: y }, tile.value));
+            }
+        });
+        return newGrid;
+    }
 }
 
 // Tile class
@@ -419,7 +430,7 @@ class HTMLActuator {
             this.updateScore(metadata.score);
 
             if (metadata.over) this.message(false); // You lose
-            if (metadata.won) this.message(true); // You win!
+            if (metadata.won && !metadata.keepPlaying) this.message(true); // You win!
         });
     }
 
@@ -653,11 +664,11 @@ class GameManager {
         this.inputManager = new KeyboardInputManager();
         this.actuator = new HTMLActuator();
         this.game = new Game(this.actuator);
-        this.solver = new Solver(this.game); // Initialize AI Solver
+        this.solver = new SmartAI(this.game); // Use the new SmartAI
 
         this.isAutoPlaying = false;
         this.autoPlayIntervalId = null;
-        this.autoPlayDelay = 500; // Milliseconds between AI moves
+        this.autoPlayDelay = 200; // Adjusted for potentially faster AI
 
         this.inputManager.on('move', this.move.bind(this));
         this.inputManager.on('restart', this.restart.bind(this));
@@ -670,7 +681,7 @@ class GameManager {
     }
 
     move(direction) {
-        if (this.isAutoPlaying) return; // Disable manual moves during auto play
+        if (this.isAutoPlaying && direction !== undefined) return;
         this.game.move(direction);
     }
 
@@ -729,15 +740,30 @@ class GameManager {
             return;
         }
 
-        const bestMove = this.solver.findBestMove(3, 450); // Max depth 3, 450ms time limit
-        if (bestMove !== -1) { 
+        if (!this.solver) { // Safety check if solver is not yet initialized
+            console.error("Solver not initialized!");
+            this.stopAutoPlay();
+            return;
+        }
+
+        const bestMove = this.solver.nextMove(); // New call for SmartAI
+        
+        if (bestMove !== undefined && bestMove !== -1 && bestMove !== null) {
             this.game.move(bestMove);
         } else {
-            // No valid moves found by AI, or game might be stuck in a loop for the AI
-            // This might happen if all moves lead to an immediate game over, or AI can't improve score.
-            // For a simple AI, it might just stop.
-            console.log("AI couldn't find a move or game is effectively over for AI.");
-            this.stopAutoPlay(); 
+            console.log("AI couldn't find a move. Attempting fallback.");
+            let moved = false;
+            if (this.solver && this.solver.game) { // Check if solver and its game ref exist
+                 for (let i = 0; i < 4; i++) {
+                    if (this.game.isMoveAvailable(i)) { 
+                         this.game.move(i);
+                         moved = true;
+                         break;
+                    }
+                 }
+            }
+            if (!moved) {
+            console.log("Fallback failed. Stopping AI."); this.stopAutoPlay(); }
         }
 
         // Check again if game ended after AI move
@@ -752,362 +778,234 @@ class GameManager {
     }
 }
 
-// AI Solver Class (Simple Heuristic)
-class Solver {
+class SmartAI {
     constructor(gameInstance) {
-        this.game = gameInstance; // Reference to the main game instance
+        this.game = gameInstance; // gameInstance is the actual Game object
     }
 
-    // searchDepth: How many of AI's own moves to look ahead.
-    // e.g., depth 1: AI moves -> Chance tile -> Evaluate
-    // e.g., depth 2: AI moves -> Chance tile -> AI moves -> Chance tile -> Evaluate
-    // A searchDepth of N means N AI moves are optimized.
-    findBestMove(maxAllowedDepth = 3, timeLimitMs = 450) {
-        let overallBestMove = -1;
-        let overallBestScore = -Infinity; // Keep track of the score for the best move found so far
-        const startTime = Date.now();
-
-        for (let currentSearchDepth = 1; currentSearchDepth <= maxAllowedDepth; currentSearchDepth++) {
-            let bestMoveForThisDepth = -1;
-            let bestScoreForThisDepth = -Infinity;
-            // console.log(`Starting search at depth: ${currentSearchDepth}`);
-
-            for (let direction = 0; direction < 4; direction++) {
-                const tempGame = this._copyGame(this.game);
-                const moved = this._simulateMoveOnTempGame(tempGame, direction);
-
-                if (moved) {
-                    // currentSearchDepth is the total number of AI moves we want to make in this iteration.
-                    // One move (direction) is already made. So, (currentSearchDepth - 1) more AI moves to search.
-                    const scoreForThisDirection = this._expectiSearch(tempGame.grid, tempGame.score, currentSearchDepth - 1);
-                    if (scoreForThisDirection > bestScoreForThisDepth) {
-                        bestScoreForThisDepth = scoreForThisDirection;
-                        bestMoveForThisDepth = direction;
-                    }
-                }
-            }
-
-            if (bestMoveForThisDepth !== -1) {
-                overallBestMove = bestMoveForThisDepth;
-                overallBestScore = bestScoreForThisDepth; // Update the best score found
-                // console.log(`Depth ${currentSearchDepth}: Best move ${overallBestMove} with score ${overallBestScore}`);
-            }
-            
-            // Check time limit after completing a full depth search
-            if (Date.now() - startTime > timeLimitMs) {
-                // console.log(`Time limit (${timeLimitMs}ms) reached at depth ${currentSearchDepth}. Using move from this depth.`);
-                break;
-            }
-        }
-        
-        // Fallback if no valid move was found by iterative deepening (e.g., all initial moves are bad or time ran out before depth 1 finished)
-        if (overallBestMove === -1 && this.game.movesAvailable()) {
-            // console.log("Iterative deepening found no best move or timed out early. Using fallback.");
-            for (let direction = 0; direction < 4; direction++) {
-                const tempGameCheck = this._copyGame(this.game);
-                if (this._simulateMoveOnTempGame(tempGameCheck, direction)) {
-                    // console.log("Fallback: taking first available valid move:", direction);
-                    return direction; 
-                }
-            }
-        }
-        // console.log(`Final AI Decision: Move ${overallBestMove}, Score: ${overallBestScore}, Time: ${Date.now() - startTime}ms`);
-        return overallBestMove;
-    }
-
-    // Simulates AI's turn: maximize score
-    _aiTurnSearch(grid, score, depth) {
-        const terminalState = this._isTerminal(grid);
-        // If depth is 0, it means we've completed the desired number of AI moves. Evaluate.
-        // Or if game is over.
-        if (depth < 0 || terminalState.over) { // depth < 0 should not happen with correct calls, but as safeguard
-             return this.evaluateBoard(grid, score);
-        }
-        if (depth === 0) {
-             return this.evaluateBoard(grid, score);
-        }
-
-
-        let maxScore = -Infinity;
-        let moveMade = false;
-
-        for (let direction = 0; direction < 4; direction++) {
-            const tempGame = { grid: this._cloneGrid(grid), score: score, over: false, won: false };
-            const moved = this._simulateMoveOnTempGame(tempGame, direction);
-
-            if (moved) {
-                moveMade = true;
-                // After AI's move, it's chance node's turn.
-                // The next call to expectiSearch will lead to an AI search of (depth - 1).
-                maxScore = Math.max(maxScore, this._expectiSearch(tempGame.grid, tempGame.score, depth -1));
-            }
-        }
-        // If no move was possible from this state (e.g. a "stuck" intermediate state),
-        // evaluate the current board.
-        return moveMade ? maxScore : this.evaluateBoard(grid, score);
-    }
-
-    // Simulates Chance node's turn: calculate expected score
-    // Depth here refers to the remaining AI plies to search *after* this chance node.
-    _expectiSearch(grid, score, depth) {
-        const terminalState = this._isTerminal(grid);
-        if (terminalState.over || depth < 0) { // depth < 0 means we've gone past search limit
-            return this.evaluateBoard(grid, score);
-        }
-
-        const availableCells = grid.availableCells();
-        if (availableCells.length === 0 && !terminalState.over) {
-            // This state should ideally be caught by terminalState.over if no cells are available
-            // and no moves can be made. If cells are 0 but moves exist (impossible), it's an issue.
-            // For robustness, evaluate.
-            return this.evaluateBoard(grid, score);
-        }
-        if (availableCells.length === 0 && terminalState.over) {
-             return this.evaluateBoard(grid, score);
-        }
-
-
-        let totalExpectedScore = 0;
-        
-        availableCells.forEach(cellPos => {
-            // Scenario 1: A '2' tile appears
-            const gridWith2 = this._cloneGrid(grid);
-            gridWith2.insertTile(new Tile(cellPos, 2));
-            // After chance tile, AI makes its next move (depth is already reduced for this level of AI search)
-            totalExpectedScore += 0.9 * this._aiTurnSearch(gridWith2, score, depth);
-
-            // Scenario 2: A '4' tile appears
-            const gridWith4 = this._cloneGrid(grid);
-            gridWith4.insertTile(new Tile(cellPos, 4));
-            totalExpectedScore += 0.1 * this._aiTurnSearch(gridWith4, score, depth);
-        });
-        
-        return availableCells.length > 0 ? totalExpectedScore / availableCells.length : this.evaluateBoard(grid, score);
-    }
-
-
-    _copyGame(gameInstance) {
-        const newGrid = this._cloneGrid(gameInstance.grid);
-        return {
-            grid: newGrid,
-            score: gameInstance.score,
-            over: gameInstance.over, // Current 'over' state might not be relevant for simulation start
-            won: gameInstance.won   // Same for 'won'
-        };
-    }
-
-    _cloneGrid(gridInstance) {
-        const newGrid = new Grid(gridInstance.size);
-        gridInstance.eachCell((x, y, tile) => {
-            if (tile) {
-                newGrid.insertTile(new Tile({ x: x, y: y }, tile.value));
-            }
-        });
-        return newGrid;
-    }
-
-    _simulateMoveOnTempGame(tempGame, direction) {
-        const grid = tempGame.grid;
-        let score = tempGame.score; // Use let as score can change
-        const vector = this.game.getVector(direction);
+    _simulateMoveOnGridClone(originalGrid, direction) {
+        const newGrid = originalGrid.clone();
+        const vector = this.game.getVector(direction); // Use from the Game object passed to constructor
         const traversals = this.game.buildTraversals(vector);
         let moved = false;
 
-        grid.eachCell((x, y, tile) => {
+        newGrid.eachCell((x, y, tile) => {
             if (tile) tile.mergedFrom = null;
         });
 
-        traversals.x.forEach(x => {
-            traversals.y.forEach(y => {
-                const cell = { x, y };
-                let tile = grid.cellContent(cell); // Use let, as tile object in cell might change due to merge
-
+        traversals.x.forEach(xPos => {
+            traversals.y.forEach(yPos => {
+                const cell = { x: xPos, y: yPos };
+                let tile = newGrid.cellContent(cell);
                 if (tile) {
-                    const positions = this.game.findFarthestPosition.call({ grid: grid }, cell, vector);
-                    const nextCellDesc = grid.cellContent(positions.next);
+                    // For findFarthestPosition, the context 'this' needs to be an object with a 'grid' property
+                    // and any methods like getVector if findFarthestPosition itself calls them using 'this'
+                    // The original Game.findFarthestPosition expects 'this.grid'.
+                    const contextForFindFarthest = { 
+                        grid: newGrid, 
+                        // Provide other methods if findFarthestPosition or its callees from Game need them
+                        withinBounds: newGrid.withinBounds.bind(newGrid), // Grid method
+                        cellAvailable: newGrid.cellAvailable.bind(newGrid) // Grid method
+                    };
+                    const positions = this.game.findFarthestPosition.call(contextForFindFarthest, cell, vector);
+                    const next = newGrid.cellContent(positions.next);
 
-                    if (nextCellDesc && nextCellDesc.value === tile.value && !nextCellDesc.mergedFrom) {
+                    if (next && next.value === tile.value && !next.mergedFrom) {
                         const merged = new Tile(positions.next, tile.value * 2);
-                        merged.mergedFrom = [tile, nextCellDesc];
-
-                        grid.insertTile(merged);
-                        grid.removeTile(tile); // Remove the original tile that moved
-                        grid.removeTile(nextCellDesc); // Remove the tile it merged with
-
-                        score += merged.value;
+                        merged.mergedFrom = [tile, next];
+                        newGrid.insertTile(merged);
+                        newGrid.removeTile(tile);
                         moved = true;
                     } else {
-                        const originalCellX = tile.x;
-                        const originalCellY = tile.y;
-                        const targetCellX = positions.farthest.x;
-                        const targetCellY = positions.farthest.y;
-
-                        if (originalCellX !== targetCellX || originalCellY !== targetCellY) {
-                            grid.cells[originalCellX][originalCellY] = null;
-                            tile.updatePosition(positions.farthest);
-                            grid.cells[targetCellX][targetCellY] = tile;
-                            moved = true;
+                        // Simulate moving the tile on the newGrid
+                        if (newGrid.cells[tile.x][tile.y] === tile) { // Ensure we are moving the correct tile instance
+                           if (tile.x !== positions.farthest.x || tile.y !== positions.farthest.y) {
+                                newGrid.cells[tile.x][tile.y] = null;
+                                newGrid.cells[positions.farthest.x][positions.farthest.y] = tile;
+                                tile.updatePosition(positions.farthest); // Update tile's own record of position
+                                moved = true;
+                            }
                         }
                     }
                 }
             });
         });
-
-        tempGame.score = score;
-        // Check for game over state on this tempGame AFTER the move
-        if (!this._movesAvailable(grid)) {
-            tempGame.over = true;
-        }
-        // Check for win, though AI typically plays past it
-        grid.eachCell((x,y,tile) => { if(tile && tile.value === 2048) tempGame.won = true;});
-
-        return moved;
+        return { newGrid, moved };
     }
 
-    _movesAvailable(grid) {
-        if (grid.availableCells().length > 0) return true;
+    gridQuality(grid) {
+        var monoScore = 0;
+        const traversals = this.game.buildTraversals({x: -1, y: 0});
+        var prevValue;
+        var incScore, decScore;
 
-        for (let x = 0; x < grid.size; x++) {
-            for (let y = 0; y < grid.size; y++) {
-                const tile = grid.cellContent({ x, y });
-                if (tile) {
-                    for (let direction = 0; direction < 4; direction++) {
-                        const vector = this.game.getVector(direction);
-                        const cell = { x: x + vector.x, y: y + vector.y };
-                        const other = grid.cellContent(cell);
-                        if (other && other.value === tile.value) {
-                            return true;
-                        }
-                    }
+        var scoreCell = function(cell) {
+            var tile = grid.cellContent(cell);
+            var tileValue = (tile ? tile.value : 0);
+            incScore += tileValue;
+            if (tileValue <= prevValue || prevValue === -1) {
+                decScore += tileValue;
+                if (tileValue < prevValue) {
+                    incScore -= prevValue;
                 }
             }
-        }
-        return false;
-    }
-
-    _isTerminal(grid) {
-        return { over: !this._movesAvailable(grid) };
-    }
-
-    // evaluateBoard should be self-contained or use this.game for static properties only
-    evaluateBoard(grid, currentScore) {
-        let evalScore = 0;
-
-        // 1. Raw Score contribution (less emphasized now, heuristics are more important)
-        evalScore += currentScore * 0.1; 
-
-        // 2. Empty Cells Bonus (Crucial)
-        const emptyCells = grid.availableCells().length;
-        evalScore += emptyCells * 275; // Increased weight slightly
-
-        // 3. Smoothness Bonus (Penalize differences between adjacent tiles)
-        let smoothness = 0;
-        grid.eachCell((x, y, tile) => {
-            if (tile) {
-                // Check right neighbor
-                if (x + 1 < grid.size) {
-                    const rightNeighbor = grid.cellContent({ x: x + 1, y: y });
-                    if (rightNeighbor) {
-                        smoothness -= Math.abs(Math.log2(tile.value) - Math.log2(rightNeighbor.value));
-                    } else {
-                        smoothness += 1; // Bonus for empty cell next to a tile (potential for movement)
-                    }
-                }
-                // Check down neighbor
-                if (y + 1 < grid.size) {
-                    const downNeighbor = grid.cellContent({ x: x, y: y + 1 });
-                    if (downNeighbor) {
-                        smoothness -= Math.abs(Math.log2(tile.value) - Math.log2(downNeighbor.value));
-                    } else {
-                        smoothness += 1; // Bonus for empty cell next to a tile
-                    }
-                }
-            }
-        });
-        evalScore += smoothness * 10;
-
-        // 4. Monotonicity Bonus (Encourage sorted rows/columns)
-        let monotonicity = 0;
-        const directions = [ {x:1, y:0}, {x:0, y:1} ]; // Horizontal and Vertical
-
-        for(let d_idx = 0; d_idx < directions.length; d_idx++){
-            const dirVector = directions[d_idx];
-            for (let i = 0; i < grid.size; i++) {
-                let currentLineValues = [];
-                for (let j = 0; j < grid.size; j++) {
-                    let cellContent;
-                    if(dirVector.x === 1) { // Traversing a row
-                        cellContent = grid.cellContent({x: j, y: i});
-                    } else { // Traversing a column
-                        cellContent = grid.cellContent({x: i, y: j});
-                    }
-                    if(cellContent) currentLineValues.push(cellContent.value);
-                    else currentLineValues.push(0); // Represent empty cells as 0 for monotonicity check
-                }
-
-                let increaseScore = 0;
-                let decreaseScore = 0;
-                for (let k = 0; k < currentLineValues.length - 1; k++) {
-                    if (currentLineValues[k] > 0 && currentLineValues[k+1] > 0) { // Only consider adjacent tiles
-                        if (currentLineValues[k] > currentLineValues[k+1]) {
-                            decreaseScore += Math.log2(currentLineValues[k]) - Math.log2(currentLineValues[k+1]);
-                        }
-                        if (currentLineValues[k] < currentLineValues[k+1]) {
-                           increaseScore += Math.log2(currentLineValues[k+1]) - Math.log2(currentLineValues[k]);
-                        }
-                    }
-                }
-                monotonicity += Math.max(increaseScore, decreaseScore);
-            }
-        }
-        evalScore += monotonicity * 45; // Adjusted weight
+            prevValue = tileValue;
+        };
         
-        // 5. Max Value in Corner Bonus (e.g., bottom-right)
-        let maxValue = 0;
-        grid.eachCell((x,y,tile) => { if(tile) maxValue = Math.max(maxValue, tile.value); });
-        
-        const cornerX = grid.size -1;
-        const cornerY = grid.size -1;
-        const cornerTile = grid.cellContent({x: cornerX, y: cornerY});
-
-        if (cornerTile && cornerTile.value === maxValue) {
-            evalScore += maxValue * 2.5; // Strong bonus if max tile is in desired corner
-        }
-        // Penalize if max tile is not on an edge
-        else {
-            let maxTileOnEdge = false;
-            for(let i=0; i<grid.size; i++){
-                if( (grid.cellContent({x:i, y:0})?.value === maxValue) ||
-                    (grid.cellContent({x:i, y:grid.size-1})?.value === maxValue) ||
-                    (grid.cellContent({x:0, y:i})?.value === maxValue) ||
-                    (grid.cellContent({x:grid.size-1, y:i})?.value === maxValue) ){
-                        maxTileOnEdge = true;
-                        break;
-                    }
-            }
-            if(maxValue > 128 && !maxTileOnEdge){ // Only penalize for larger tiles not on edge
-                evalScore -= maxValue * 2.0;
-            }
-        }
-
-        // 6. Penalty for too many distinct tile values / Lack of mergeable pairs
-        let distinctValues = new Set();
-        let mergePotential = 0;
-        grid.eachCell((x,y,tile) => {
-            if(tile){
-                distinctValues.add(tile.value);
-                // Check for horizontal merge potential
-                if(x + 1 < grid.size && grid.cellContent({x:x+1, y:y})?.value === tile.value) mergePotential += tile.value;
-                // Check for vertical merge potential
-                if(y + 1 < grid.size && grid.cellContent({x:x, y:y+1})?.value === tile.value) mergePotential += tile.value;
-            }
+        traversals.x.forEach(function (xIndex) {
+            prevValue = -1; incScore = 0; decScore = 0;
+            traversals.y.forEach(function (yIndex) {
+                scoreCell({ x: xIndex, y: yIndex });
+            });
+            monoScore += Math.max(incScore, decScore);
         });
-        evalScore += mergePotential * 1.5; // Bonus for immediate merge opportunities
-        if(distinctValues.size > (grid.size * grid.size) / 2 && emptyCells < 4) { // If many distinct values and few empty cells
-            evalScore -= distinctValues.size * 20;
-        }
 
-        return evalScore;
+        traversals.y.forEach(function (yIndex) { 
+            prevValue = -1; incScore = 0; decScore = 0;
+            traversals.x.forEach(function (xIndex) {
+                scoreCell({ x: xIndex, y: yIndex });
+            });
+            monoScore += Math.max(incScore, decScore);
+        });
+        
+        var availableCells = grid.availableCells();
+        var emptyCellWeight = 8;
+        var emptyScore = availableCells.length * emptyCellWeight;
+        return monoScore + emptyScore;
+    }
+
+    chooseBestMove(results, originalQuality) {
+        var bestResult = null;
+        for (var i = 0; i < results.length; i++) {
+            if (results[i] == null) continue;
+            if (!bestResult ||
+                results[i].qualityLoss < bestResult.qualityLoss ||
+                (results[i].qualityLoss === bestResult.qualityLoss && results[i].quality > bestResult.quality) ||
+                (results[i].qualityLoss === bestResult.qualityLoss && results[i].quality === bestResult.quality && (results[i].probability || 1) < (bestResult.probability || 1) )) {
+                bestResult = results[i];
+            }
+        }
+        if (!bestResult) {
+             for(let dir = 0; dir < 4; dir++) {
+                if (results[dir] !== null && results[dir].direction !== undefined) return results[dir]; // Ensure direction is valid
+            }
+            return { quality: -1, probability: 1, qualityLoss: originalQuality, direction: -1 }; // Fallback with -1 direction
+        }
+        return bestResult;
+    }
+
+    planAhead(grid, numMoves, originalQuality) {
+        var results = new Array(4);
+        for (var d = 0; d < 4; d++) {
+            const sim = this._simulateMoveOnGridClone(grid, d);
+            if (!sim.moved) {
+                results[d] = null; continue;
+            }
+            var currentMovedGrid = sim.newGrid;
+            var result = { quality: -1, probability: 1, qualityLoss: 0, direction: d };
+            var availableCells = currentMovedGrid.availableCells();
+            let consideredSpawnLocations = 0;
+
+            if (availableCells.length === 0) {
+                result.quality = this.gridQuality(currentMovedGrid);
+                result.qualityLoss = Math.max(0, originalQuality - result.quality);
+                result.probability = 1;
+            } else {
+                for (var i = 0; i < availableCells.length; i++) {
+                    var cellPos = availableCells[i];
+                    var hasAdjacentTileCurrentCell = false;
+                    for (var d2 = 0; d2 < 4; d2++) {
+                        var vector = this.game.getVector(d2);
+                        var adjCell = { x: cellPos.x + vector.x, y: cellPos.y + vector.y };
+                        if (currentMovedGrid.cellContent(adjCell)) {
+                            hasAdjacentTileCurrentCell = true; break;
+                        }
+                    }
+                    
+                    let anyCellIsAdjacentOverall = false;
+                    if (availableCells.length > 1) {
+                        for(const ac of availableCells) {
+                            let currentACIsAdj = false;
+                            for(let d3=0; d3<4; d3++) {
+                                const vec = this.game.getVector(d3);
+                                if(currentMovedGrid.cellContent({x: ac.x + vec.x, y: ac.y + vec.y})) {
+                                    currentACIsAdj = true; break;
+                                }
+                            }
+                            if(currentACIsAdj) { anyCellIsAdjacentOverall = true; break; }
+                        }
+                    }
+                    if (anyCellIsAdjacentOverall && !hasAdjacentTileCurrentCell && availableCells.length > 1) continue;
+
+                    consideredSpawnLocations++;
+                    var testGrid2 = currentMovedGrid.clone();
+                    var newTileForTest = new Tile(cellPos, 2); // Original AI only considers '2'
+                    testGrid2.insertTile(newTileForTest);
+
+                    var tileResult;
+                    if (numMoves > 1) {
+                        var subResults = this.planAhead(testGrid2, numMoves - 1, originalQuality);
+                        tileResult = this.chooseBestMove(subResults, originalQuality);
+                    } else {
+                        var tileQualityVal = this.gridQuality(testGrid2);
+                        tileResult = {
+                            quality: tileQualityVal,
+                            probability: 1,
+                            qualityLoss: Math.max(0, originalQuality - tileQualityVal)
+                        };
+                    }
+                    
+                    if (tileResult && tileResult.quality !== undefined) { // Check tileResult and its quality
+                        if (result.quality === -1 || tileResult.quality < result.quality) {
+                            result.quality = tileResult.quality;
+                            result.probability = (tileResult.probability || 1) / (consideredSpawnLocations || 1);
+                        } else if (tileResult.quality === result.quality) {
+                            result.probability += (tileResult.probability || 1) / (consideredSpawnLocations || 1);
+                        }
+                        result.qualityLoss += (tileResult.qualityLoss || 0) / (consideredSpawnLocations || 1);
+                    } else if (consideredSpawnLocations === 1 && tileResult && tileResult.quality !== undefined) {
+                        // If only one spawn location was considered and it yielded a result
+                        result.quality = tileResult.quality;
+                        result.probability = tileResult.probability || 1;
+                        result.qualityLoss = tileResult.qualityLoss || 0;
+                    }
+                }
+                if (consideredSpawnLocations === 0 && availableCells.length > 0) {
+                    var firstCell = availableCells[0];
+                    var testGridFallback = currentMovedGrid.clone();
+                    var newTileFallback = new Tile(firstCell, 2);
+                    testGridFallback.insertTile(newTileFallback);
+                    var fbTileResult;
+                    if (numMoves > 1) {
+                        var fbSubResults = this.planAhead(testGridFallback, numMoves - 1, originalQuality);
+                        fbTileResult = this.chooseBestMove(fbSubResults, originalQuality);
+                    } else {
+                         var fbTileQualityVal = this.gridQuality(testGridFallback);
+                         fbTileResult = { quality: fbTileQualityVal, probability: 1, qualityLoss: Math.max(0, originalQuality - fbTileQualityVal) };
+                    }
+                     if (fbTileResult && fbTileResult.quality !== undefined) { 
+                        result.quality = fbTileResult.quality;
+                        result.probability = fbTileResult.probability || 1;
+                        result.qualityLoss = fbTileResult.qualityLoss || 0;
+                    }
+                }
+            }
+            results[d] = result;
+        }
+        return results;
+    }
+
+    nextMove() {
+        if (!this.game || !this.game.grid) {
+            console.error("SmartAI: Game or grid not available!");
+            return 0; 
+        }
+        var originalQuality = this.gridQuality(this.game.grid);
+        var results = this.planAhead(this.game.grid, 3, originalQuality); 
+        var bestResult = this.chooseBestMove(results, originalQuality);
+        
+        // Ensure a valid direction is returned, otherwise default (e.g. if bestResult.direction is -1)
+        return (bestResult && bestResult.direction !== -1 && bestResult.direction !== undefined) ? bestResult.direction : 0;
     }
 }
 
