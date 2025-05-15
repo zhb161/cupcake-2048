@@ -729,8 +729,8 @@ class GameManager {
             return;
         }
 
-        const bestMove = this.solver.findBestMove(2); // Using a search depth of 2
-        if (bestMove !== -1) { // -1 could signify no good move or error
+        const bestMove = this.solver.findBestMove(3, 450); // Max depth 3, 450ms time limit
+        if (bestMove !== -1) { 
             this.game.move(bestMove);
         } else {
             // No valid moves found by AI, or game might be stuck in a loop for the AI
@@ -762,43 +762,60 @@ class Solver {
     // e.g., depth 1: AI moves -> Chance tile -> Evaluate
     // e.g., depth 2: AI moves -> Chance tile -> AI moves -> Chance tile -> Evaluate
     // A searchDepth of N means N AI moves are optimized.
-    findBestMove(searchDepth = 2) {
-        let bestOverallScore = -Infinity;
-        let bestMove = -1;
+    findBestMove(maxAllowedDepth = 3, timeLimitMs = 450) {
+        let overallBestMove = -1;
+        let overallBestScore = -Infinity; // Keep track of the score for the best move found so far
+        const startTime = Date.now();
 
-        // Iterate through each of the 4 possible initial moves
-        for (let direction = 0; direction < 4; direction++) {
-            // Create a fresh copy of the current game state for this top-level simulation
-            const tempGame = this._copyGame(this.game);
-            const moved = this._simulateMoveOnTempGame(tempGame, direction);
+        for (let currentSearchDepth = 1; currentSearchDepth <= maxAllowedDepth; currentSearchDepth++) {
+            let bestMoveForThisDepth = -1;
+            let bestScoreForThisDepth = -Infinity;
+            // console.log(`Starting search at depth: ${currentSearchDepth}`);
 
-            if (moved) {
-                // After AI's first move (depth 1), it's chance node's turn.
-                // The recursive search will then look for (searchDepth - 1) more AI moves.
-                const scoreForThisDirection = this._expectiSearch(tempGame.grid, tempGame.score, searchDepth -1);
-                if (scoreForThisDirection > bestOverallScore) {
-                    bestOverallScore = scoreForThisDirection;
-                    bestMove = direction;
+            for (let direction = 0; direction < 4; direction++) {
+                const tempGame = this._copyGame(this.game);
+                const moved = this._simulateMoveOnTempGame(tempGame, direction);
+
+                if (moved) {
+                    // currentSearchDepth is the total number of AI moves we want to make in this iteration.
+                    // One move (direction) is already made. So, (currentSearchDepth - 1) more AI moves to search.
+                    const scoreForThisDirection = this._expectiSearch(tempGame.grid, tempGame.score, currentSearchDepth - 1);
+                    if (scoreForThisDirection > bestScoreForThisDepth) {
+                        bestScoreForThisDepth = scoreForThisDirection;
+                        bestMoveForThisDepth = direction;
+                    }
                 }
+            }
+
+            if (bestMoveForThisDepth !== -1) {
+                overallBestMove = bestMoveForThisDepth;
+                overallBestScore = bestScoreForThisDepth; // Update the best score found
+                // console.log(`Depth ${currentSearchDepth}: Best move ${overallBestMove} with score ${overallBestScore}`);
+            }
+            
+            // Check time limit after completing a full depth search
+            if (Date.now() - startTime > timeLimitMs) {
+                // console.log(`Time limit (${timeLimitMs}ms) reached at depth ${currentSearchDepth}. Using move from this depth.`);
+                break;
             }
         }
         
-        if (bestMove === -1 && this.game.movesAvailable()) {
-             // Fallback: if no move improved score (all led to -Infinity or same low score)
-             // but game is not over, pick first valid move.
+        // Fallback if no valid move was found by iterative deepening (e.g., all initial moves are bad or time ran out before depth 1 finished)
+        if (overallBestMove === -1 && this.game.movesAvailable()) {
+            // console.log("Iterative deepening found no best move or timed out early. Using fallback.");
             for (let direction = 0; direction < 4; direction++) {
                 const tempGameCheck = this._copyGame(this.game);
                 if (this._simulateMoveOnTempGame(tempGameCheck, direction)) {
-                    // console.log("Fallback: taking first available move:", direction);
+                    // console.log("Fallback: taking first available valid move:", direction);
                     return direction; 
                 }
             }
         }
-        return bestMove;
+        // console.log(`Final AI Decision: Move ${overallBestMove}, Score: ${overallBestScore}, Time: ${Date.now() - startTime}ms`);
+        return overallBestMove;
     }
 
     // Simulates AI's turn: maximize score
-    // Depth here means remaining AI plies (turns) to search *after* the preceding chance node.
     _aiTurnSearch(grid, score, depth) {
         const terminalState = this._isTerminal(grid);
         // If depth is 0, it means we've completed the desired number of AI moves. Evaluate.
@@ -974,67 +991,123 @@ class Solver {
 
     // evaluateBoard should be self-contained or use this.game for static properties only
     evaluateBoard(grid, currentScore) {
-        // if (!moved) return -Infinity; // Removed this, evaluation is for a static board state
+        let evalScore = 0;
 
-        let score = currentScore * 10; // Prioritize raw score gained
-        let emptyCells = 0;
+        // 1. Raw Score contribution (less emphasized now, heuristics are more important)
+        evalScore += currentScore * 0.1; 
+
+        // 2. Empty Cells Bonus (Crucial)
+        const emptyCells = grid.availableCells().length;
+        evalScore += emptyCells * 275; // Increased weight slightly
+
+        // 3. Smoothness Bonus (Penalize differences between adjacent tiles)
         let smoothness = 0;
-        let monotonicity = 0;
-        let maxValue = 0;
-
         grid.eachCell((x, y, tile) => {
             if (tile) {
-                maxValue = Math.max(maxValue, tile.value);
-                // Smoothness (horizontal and vertical)
-                // Right neighbor
-                if (x + 1 < grid.size && grid.cellContent({x: x + 1, y: y})) {
-                    smoothness -= Math.abs(tile.value - grid.cellContent({x: x + 1, y: y}).value);
+                // Check right neighbor
+                if (x + 1 < grid.size) {
+                    const rightNeighbor = grid.cellContent({ x: x + 1, y: y });
+                    if (rightNeighbor) {
+                        smoothness -= Math.abs(Math.log2(tile.value) - Math.log2(rightNeighbor.value));
+                    } else {
+                        smoothness += 1; // Bonus for empty cell next to a tile (potential for movement)
+                    }
                 }
-                // Down neighbor
-                if (y + 1 < grid.size && grid.cellContent({x: x, y: y + 1})) {
-                    smoothness -= Math.abs(tile.value - grid.cellContent({x: x, y: y + 1}).value);
+                // Check down neighbor
+                if (y + 1 < grid.size) {
+                    const downNeighbor = grid.cellContent({ x: x, y: y + 1 });
+                    if (downNeighbor) {
+                        smoothness -= Math.abs(Math.log2(tile.value) - Math.log2(downNeighbor.value));
+                    } else {
+                        smoothness += 1; // Bonus for empty cell next to a tile
+                    }
                 }
-            } else {
-                emptyCells++;
             }
         });
+        evalScore += smoothness * 10;
 
-        score += emptyCells * 200; // Heavily prioritize empty cells
-        score += smoothness * 10;   // Prioritize smooth boards
-        // score += maxValue * 5; // Prioritize higher max tile, but might conflict with merging strategy
+        // 4. Monotonicity Bonus (Encourage sorted rows/columns)
+        let monotonicity = 0;
+        const directions = [ {x:1, y:0}, {x:0, y:1} ]; // Horizontal and Vertical
 
-        // Monotonicity (simple version: sum of values in rows/cols, prefer increasing)
-        // This is a very basic check, more advanced checks would look at edges specifically.
-        for (let i = 0; i < grid.size; i++) {
-            let currentRow = 0;
-            let currentCol = 0;
-            let prevRowVal = 0;
-            let prevColVal = 0;
-            for (let j = 0; j < grid.size; j++) {
-                const rowTile = grid.cellContent({x: j, y: i}); // Iterate through row i
-                const colTile = grid.cellContent({x: i, y: j}); // Iterate through col i
-                if (rowTile) {
-                    currentRow += rowTile.value;
-                    if (rowTile.value >= prevRowVal) monotonicity += rowTile.value * 0.1; // Reward increasing
-                    else monotonicity -= rowTile.value * 0.5; // Penalize decreasing
-                    prevRowVal = rowTile.value;
+        for(let d_idx = 0; d_idx < directions.length; d_idx++){
+            const dirVector = directions[d_idx];
+            for (let i = 0; i < grid.size; i++) {
+                let currentLineValues = [];
+                for (let j = 0; j < grid.size; j++) {
+                    let cellContent;
+                    if(dirVector.x === 1) { // Traversing a row
+                        cellContent = grid.cellContent({x: j, y: i});
+                    } else { // Traversing a column
+                        cellContent = grid.cellContent({x: i, y: j});
+                    }
+                    if(cellContent) currentLineValues.push(cellContent.value);
+                    else currentLineValues.push(0); // Represent empty cells as 0 for monotonicity check
                 }
-                if (colTile) {
-                    currentCol += colTile.value;
-                     if (colTile.value >= prevColVal) monotonicity += colTile.value * 0.1;
-                    else monotonicity -= colTile.value * 0.5;
-                    prevColVal = colTile.value;
+
+                let increaseScore = 0;
+                let decreaseScore = 0;
+                for (let k = 0; k < currentLineValues.length - 1; k++) {
+                    if (currentLineValues[k] > 0 && currentLineValues[k+1] > 0) { // Only consider adjacent tiles
+                        if (currentLineValues[k] > currentLineValues[k+1]) {
+                            decreaseScore += Math.log2(currentLineValues[k]) - Math.log2(currentLineValues[k+1]);
+                        }
+                        if (currentLineValues[k] < currentLineValues[k+1]) {
+                           increaseScore += Math.log2(currentLineValues[k+1]) - Math.log2(currentLineValues[k]);
+                        }
+                    }
                 }
+                monotonicity += Math.max(increaseScore, decreaseScore);
             }
         }
-        score += monotonicity * 2;
+        evalScore += monotonicity * 45; // Adjusted weight
         
-        // Preference for keeping high values in a corner (e.g. bottom-right)
-        if(grid.cellContent({x: grid.size-1, y: grid.size-1})){ 
-             score += grid.cellContent({x: grid.size-1, y: grid.size-1}).value * 20;
+        // 5. Max Value in Corner Bonus (e.g., bottom-right)
+        let maxValue = 0;
+        grid.eachCell((x,y,tile) => { if(tile) maxValue = Math.max(maxValue, tile.value); });
+        
+        const cornerX = grid.size -1;
+        const cornerY = grid.size -1;
+        const cornerTile = grid.cellContent({x: cornerX, y: cornerY});
+
+        if (cornerTile && cornerTile.value === maxValue) {
+            evalScore += maxValue * 2.5; // Strong bonus if max tile is in desired corner
+        }
+        // Penalize if max tile is not on an edge
+        else {
+            let maxTileOnEdge = false;
+            for(let i=0; i<grid.size; i++){
+                if( (grid.cellContent({x:i, y:0})?.value === maxValue) ||
+                    (grid.cellContent({x:i, y:grid.size-1})?.value === maxValue) ||
+                    (grid.cellContent({x:0, y:i})?.value === maxValue) ||
+                    (grid.cellContent({x:grid.size-1, y:i})?.value === maxValue) ){
+                        maxTileOnEdge = true;
+                        break;
+                    }
+            }
+            if(maxValue > 128 && !maxTileOnEdge){ // Only penalize for larger tiles not on edge
+                evalScore -= maxValue * 2.0;
+            }
         }
 
-        return score;
+        // 6. Penalty for too many distinct tile values / Lack of mergeable pairs
+        let distinctValues = new Set();
+        let mergePotential = 0;
+        grid.eachCell((x,y,tile) => {
+            if(tile){
+                distinctValues.add(tile.value);
+                // Check for horizontal merge potential
+                if(x + 1 < grid.size && grid.cellContent({x:x+1, y:y})?.value === tile.value) mergePotential += tile.value;
+                // Check for vertical merge potential
+                if(y + 1 < grid.size && grid.cellContent({x:x, y:y+1})?.value === tile.value) mergePotential += tile.value;
+            }
+        });
+        evalScore += mergePotential * 1.5; // Bonus for immediate merge opportunities
+        if(distinctValues.size > (grid.size * grid.size) / 2 && emptyCells < 4) { // If many distinct values and few empty cells
+            evalScore -= distinctValues.size * 20;
+        }
+
+        return evalScore;
     }
 }
 
