@@ -53,7 +53,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 50px;
+    padding: 0 20px;
 }
 
 /* Header Styles */
@@ -61,7 +61,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 50px;
+    flex-wrap: wrap;
+    padding: 10px 20px;
     background-color: var(--background-color);
     position: fixed;
     top: 0;
@@ -69,47 +70,108 @@ header {
     right: 0;
     z-index: 1000;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    height: 80px;
+    min-height: 80px;
     transition: background-color 0.3s ease;
 }
 
 .logo h1 {
     color: var(--tertiary-color);
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
     transition: color 0.3s ease;
+    margin-right: 20px;
 }
 
-.main-nav button {
+.scores-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.score, .best-score {
+    background-color: var(--tertiary-color);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 5px;
+    text-align: center;
+    min-width: 80px;
+    transition: background-color 0.3s ease;
+}
+
+.score-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+#current-score, #best-score {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.main-nav button,
+.ai-speed-controls button {
     background-color: var(--accent-color);
     color: white;
     border: none;
     padding: 8px 12px;
-    margin-left: 10px;
+    margin: 5px;
     border-radius: 20px;
     cursor: pointer;
     font-family: var(--font-family);
     font-weight: 600;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
-.main-nav button:hover {
+.main-nav button:hover,
+.ai-speed-controls button:hover {
     background-color: var(--tertiary-color);
     transform: translateY(-2px);
+}
+
+.main-nav button.active,
+.ai-speed-controls button.active {
+    background-color: var(--tertiary-color);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3) inset;
+    transform: translateY(0);
+}
+
+.ai-speed-controls {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ai-speed-controls span {
+    margin-right: 8px;
+    white-space: nowrap;
+    margin-left: 5px;
 }
 
 /* Main Content Layout */
 main {
     display: grid;
-    grid-template-columns: 1fr 300px; /* Game area flexible, sidebar fixed width */
+    grid-template-columns: 1fr 300px;
     gap: 30px;
 }
 
 .sidebar {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Space between Your Records and Cupcake Gallery */
+    gap: 20px;
 }
 
 /* Game Container */
@@ -126,32 +188,6 @@ main {
     min-height: 20px;
 }
 
-.scores-container {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.score, .best-score {
-    background-color: var(--tertiary-color);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    text-align: center;
-    min-width: 100px;
-    transition: background-color 0.3s ease;
-}
-
-.score-title {
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-#current-score, #best-score {
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
 .game-intro {
     margin-bottom: 20px;
     text-align: center;
@@ -163,7 +199,7 @@ main {
 .grid-container {
     position: relative;
     width: 100%;
-    padding-bottom: 100%; /* Makes it square */
+    padding-bottom: 100%;
     margin-bottom: 20px;
 }
 
@@ -377,7 +413,7 @@ main {
 
 /* Cupcake Gallery Adjustments */
 .cupcake-gallery {
-    background-color: var(--background-color); /* Light background for the gallery module */
+    background-color: var(--background-color);
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.05);
@@ -390,7 +426,7 @@ main {
     font-size: 1.2rem;
 }
 
-.cupcake-gallery p:first-of-type { /* The introductory paragraph */
+.cupcake-gallery p:first-of-type {
     font-size: 0.9rem;
     margin-bottom: 15px;
     text-align: center;
@@ -398,22 +434,19 @@ main {
 
 .cupcake-list {
     display: grid;
-    /* grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); */ /* Old responsive columns */
-    grid-template-columns: repeat(4, 1fr); /* Force 4 columns */
-    gap: 10px; /* Adjusted gap for 4 columns to fit better */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
     margin-top: 0;
 }
 
 .cupcake-item {
     text-align: center;
-    /* width property is not needed when using grid with fr units */
 }
 
 .cupcake-item img {
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slightly reduced shadow */
-    width: 100%; /* Image takes full width of its grid cell */
-    /* max-width: 80px; /* Remove max-width to allow image to fill cell if cell is larger */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
     height: auto;
     display: block;
     margin: 0 auto 5px auto;
@@ -422,16 +455,15 @@ main {
 
 .cupcake-item p {
     font-size: 0.8rem;
-    margin-top: 0; /* Was 5px, img margin handles it */
-    color: var(--text-color); /* Ensure text color is consistent */
+    margin-top: 0;
+    color: var(--text-color);
 }
 
 /* SEO Content Section - Adjust if needed after gallery removal */
 .seo-content {
     margin-top: 50px;
     display: grid;
-    /* grid-template-columns: repeat(2, 1fr); */ /* Consider changing if layout is unbalanced */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* More flexible columns */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
 }
 
@@ -448,27 +480,20 @@ main {
 }
 
 .seo-content ul {
-    list-style-position: inside; /* Ensures bullets are within the flow and padding */
-    padding-left: 0; /* Reset browser default if any, rely on text indent or list-style-position */
-    /* If list-style-position: outside (default), then padding-left: 20px; (or similar) is needed */
+    list-style-position: inside;
+    padding-left: 0;
 }
-
-/* If using list-style-position: inside, you might not need explicit padding for bullets, 
-   but text will wrap under the bullet. 
-   For more control with list-style-position: outside (default behavior): */
 
 .how-to-play ul,
 .tips-strategies ul {
-    list-style-type: disc; /* Ensure default disc bullets */
-    list-style-position: outside; /* Default, bullets are outside the item's content box */
-    padding-left: 25px; /* Add padding for the bullets */
-    margin-left: 0; /* Remove any browser default margin on ul */
+    list-style-type: disc;
+    list-style-position: outside;
+    padding-left: 25px;
+    margin-left: 0;
 }
 
 .how-to-play li,
 .tips-strategies li {
-    /* margin-bottom: 8px; /* Slightly adjust if needed */
-    /* No specific padding needed on li if ul has padding-left for bullets */
 }
 
 .dark-theme .cupcake-item img {
@@ -488,7 +513,7 @@ footer {
 /* Responsive Design */
 @media (max-width: 900px) {
     body {
-        padding-top: 140px; /* Increased padding for tablet */
+        padding-top: 140px;
     }
     header {
         flex-wrap: wrap;
@@ -528,7 +553,7 @@ footer {
 
 @media (max-width: 600px) {
     body {
-        padding-top: 180px; /* Significantly increased for mobile stacked header */
+        padding-top: 180px;
     }
     header {
         flex-wrap: wrap;
@@ -560,7 +585,7 @@ footer {
     }
     .main-nav button {
         margin: 5px;
-        padding: 8px 15px; /* Ensure buttons are reasonably sized */
+        padding: 8px 15px;
         font-size: 0.9rem;
     }
     .grid-background {
@@ -568,24 +593,23 @@ footer {
         padding: 10px;
     }
     .tile {
-        width: calc(25% - 10px); /* This might need re-evaluation if grid is smaller */
+        width: calc(25% - 10px);
         height: calc(25% - 10px);
     }
     .cupcake-item {
-        width: calc(50% - 7.5px); /* This was for a 2-column layout within a different parent structure */
-        /* font-size: 0.7rem; /* Adjust text size if needed */
+        width: calc(50% - 7.5px);
     }
     .cupcake-list {
-        grid-template-columns: repeat(3, 1fr); /* Force 3 columns on mobile */
-        gap: 8px; /* Adjust gap for 3 columns */
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
     }
     .cupcake-item p {
-        font-size: 0.7rem; /* Smaller text for smaller items */
+        font-size: 0.7rem;
     }
     .personal-best h2, .cupcake-gallery h2 {
-        font-size: 1.1rem; /* Adjust sidebar titles for mobile */
+        font-size: 1.1rem;
     }
     .record-item, .cupcake-gallery p:first-of-type {
-        font-size: 0.8rem; /* Adjust sidebar text for mobile */
+        font-size: 0.8rem;
     }
 } 

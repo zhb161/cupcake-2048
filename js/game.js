@@ -668,7 +668,13 @@ class GameManager {
 
         this.isAutoPlaying = false;
         this.autoPlayIntervalId = null;
-        this.autoPlayDelay = 200; // Adjusted for potentially faster AI
+
+        // AI Speed Settings
+        this.SPEED_SLOW = 1000;
+        this.SPEED_MEDIUM = 500;
+        this.SPEED_FAST = 200;
+        this.autoPlaySpeedSetting = this.SPEED_MEDIUM; // Default to medium
+        this.autoPlayDelay = this.autoPlaySpeedSetting; 
 
         this.inputManager.on('move', this.move.bind(this));
         this.inputManager.on('restart', this.restart.bind(this));
@@ -678,6 +684,14 @@ class GameManager {
         // Auto Play Button
         const autoPlayButton = document.getElementById('auto-play-btn');
         autoPlayButton.addEventListener('click', this.toggleAutoPlay.bind(this));
+
+        // AI Speed Control Buttons
+        document.getElementById('ai-speed-slow').addEventListener('click', () => this.setAISpeed(this.SPEED_SLOW));
+        document.getElementById('ai-speed-medium').addEventListener('click', () => this.setAISpeed(this.SPEED_MEDIUM));
+        document.getElementById('ai-speed-fast').addEventListener('click', () => this.setAISpeed(this.SPEED_FAST));
+        
+        this.loadAISpeedPreference(); // Load speed preference
+        this.updateSpeedButtonUI(); // Initialize UI for speed buttons
     }
 
     move(direction) {
@@ -726,12 +740,19 @@ class GameManager {
     stopAutoPlay() {
         clearInterval(this.autoPlayIntervalId);
         this.autoPlayIntervalId = null;
-        if (this.isAutoPlaying) { // Ensure toggleAutoPlay is called if stopped programmatically
-            this.isAutoPlaying = false;
-            const autoPlayButton = document.getElementById('auto-play-btn');
-            autoPlayButton.textContent = 'Auto Play';
-            autoPlayButton.classList.remove('active');
-        }
+        // Ensure isAutoPlaying is false BEFORE updating button text & class
+        // to prevent toggleAutoPlay from re-enabling it if called from elsewhere.
+        const wasPlaying = this.isAutoPlaying;
+        this.isAutoPlaying = false; 
+
+        const autoPlayButton = document.getElementById('auto-play-btn');
+        autoPlayButton.textContent = 'Auto Play';
+        autoPlayButton.classList.remove('active');
+
+        // If it was playing, we ensure the state is fully reset.
+        // No need to call toggleAutoPlay() here as it might restart it.
+        // The primary 'Auto Play' button's state is handled.
+        // Speed button states are managed by setAISpeed and updateSpeedButtonUI.
     }
 
     autoPlayStep() {
@@ -775,6 +796,43 @@ class GameManager {
     toggleTheme() {
         document.body.classList.toggle('dark-theme');
         localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    }
+
+    setAISpeed(speed) {
+        this.autoPlaySpeedSetting = speed;
+        this.autoPlayDelay = speed;
+        localStorage.setItem('aiPlaySpeed', speed); // Save preference
+        this.updateSpeedButtonUI();
+
+        if (this.isAutoPlaying) {
+            clearInterval(this.autoPlayIntervalId); // Stop current interval
+            this.autoPlayIntervalId = setInterval(() => { // Restart with new delay
+                this.autoPlayStep();
+            }, this.autoPlayDelay);
+        }
+    }
+
+    loadAISpeedPreference() {
+        const savedSpeed = localStorage.getItem('aiPlaySpeed');
+        if (savedSpeed) {
+            this.autoPlaySpeedSetting = parseInt(savedSpeed, 10);
+            this.autoPlayDelay = this.autoPlaySpeedSetting;
+        }
+        // Default is already set if nothing in localStorage
+    }
+
+    updateSpeedButtonUI() {
+        document.getElementById('ai-speed-slow').classList.remove('active');
+        document.getElementById('ai-speed-medium').classList.remove('active');
+        document.getElementById('ai-speed-fast').classList.remove('active');
+
+        if (this.autoPlaySpeedSetting === this.SPEED_SLOW) {
+            document.getElementById('ai-speed-slow').classList.add('active');
+        } else if (this.autoPlaySpeedSetting === this.SPEED_MEDIUM) {
+            document.getElementById('ai-speed-medium').classList.add('active');
+        } else if (this.autoPlaySpeedSetting === this.SPEED_FAST) {
+            document.getElementById('ai-speed-fast').classList.add('active');
+        }
     }
 }
 
@@ -823,7 +881,7 @@ class SmartAI {
                                 newGrid.cells[tile.x][tile.y] = null;
                                 newGrid.cells[positions.farthest.x][positions.farthest.y] = tile;
                                 tile.updatePosition(positions.farthest); // Update tile's own record of position
-                                moved = true;
+                            moved = true;
                             }
                         }
                     }
@@ -910,7 +968,7 @@ class SmartAI {
                 result.quality = this.gridQuality(currentMovedGrid);
                 result.qualityLoss = Math.max(0, originalQuality - result.quality);
                 result.probability = 1;
-            } else {
+                    } else {
                 for (var i = 0; i < availableCells.length; i++) {
                     var cellPos = availableCells[i];
                     var hasAdjacentTileCurrentCell = false;
