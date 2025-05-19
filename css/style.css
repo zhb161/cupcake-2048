@@ -249,17 +249,17 @@ main {
     transition: left 0.1s ease-out, top 0.1s ease-out, transform 0.2s ease, opacity 0.2s ease;
 }
 
-.tile-2 { background-image: url('../img/2-vanilla-cupcake.jpg'); }
-.tile-4 { background-image: url('../img/4-strawberry-vanilla-cupcake.jpg'); }
-.tile-8 { background-image: url('../img/8-lemon-cupcake.jpg'); }
-.tile-16 { background-image: url('../img/16-red-velvet-cupcake.jpg'); }
-.tile-32 { background-image: url('../img/32-mint-cupcake.jpg'); }
-.tile-64 { background-image: url('../img/64-jumbo-oreo-cupcake.jpg'); }
-.tile-128 { background-image: url('../img/128-birthday-cupcake.jpg'); }
-.tile-256 { background-image: url('../img/256-royal-blue-cupcake.jpg'); }
-.tile-512 { background-image: url('../img/512-caramel-cupcake.jpg'); }
-.tile-1024 { background-image: url('../img/1024-pink-champagne-cupcake.jpg'); }
-.tile-2048 { background-image: url('../img/2048-christmas-cupcake.jpg'); }
+.tile-2 { background-image: url('../img/2-vanilla-cupcake.webp'); }
+.tile-4 { background-image: url('../img/4-strawberry-vanilla-cupcake.webp'); }
+.tile-8 { background-image: url('../img/8-lemon-cupcake.webp'); }
+.tile-16 { background-image: url('../img/16-red-velvet-cupcake.webp'); }
+.tile-32 { background-image: url('../img/32-mint-cupcake.webp'); }
+.tile-64 { background-image: url('../img/64-jumbo-oreo-cupcake.webp'); }
+.tile-128 { background-image: url('../img/128-birthday-cupcake.webp'); }
+.tile-256 { background-image: url('../img/256-royal-blue-cupcake.webp'); }
+.tile-512 { background-image: url('../img/512-caramel-cupcake.webp'); }
+.tile-1024 { background-image: url('../img/1024-pink-champagne-cupcake.webp'); }
+.tile-2048 { background-image: url('../img/2048-christmas-cupcake.webp'); }
 
 .tile-merged {
     z-index: 20;
