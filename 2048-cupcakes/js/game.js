@@ -455,10 +455,41 @@ class HTMLActuator {
         this.tileContainer = document.querySelector('.grid-tiles');
         this.messageContainer = document.querySelector('.game-message');
         this.score = 0;
+        this.grid = null; // 用于存储grid引用
+        
+        // 添加新按钮的事件监听器
+        this.bindButtons();
+    }
+
+    // 绑定按钮事件
+    bindButtons() {
+        // 删除分享按钮和返回菜单按钮的事件监听器
+        // 只保留重试按钮的事件处理，它在KeyboardInputManager中已经处理
+    }
+
+    // 获取蛋糕名称 - 改为英文
+    getCupcakeName(value) {
+        const names = {
+            2: 'Vanilla Cupcake',
+            4: 'Strawberry Vanilla Cupcake',
+            8: 'Lemon Cupcake',
+            16: 'Red Velvet Cupcake',
+            32: 'Mint Cupcake',
+            64: 'Jumbo Oreo Cupcake',
+            128: 'Birthday Cupcake',
+            256: 'Royal Blue Cupcake',
+            512: 'Caramel Cupcake',
+            1024: 'Pink Champagne Cupcake',
+            2048: 'Christmas Cupcake'
+        };
+        return names[value] || 'Cupcake';
     }
 
     // Update the UI to represent the current game state
     actuate(grid, metadata) {
+        // 存储grid引用
+        this.grid = grid;
+        
         window.requestAnimationFrame(() => {
             this.clearContainer(this.tileContainer);
 
@@ -575,11 +606,149 @@ class HTMLActuator {
     // Display a game message
     message(won) {
         const type = won ? 'game-won' : 'game-over';
-        const messageText = won ? 'You win!' : 'Game over!';
+        
+        // 新的结算界面逻辑
+        this.showResultScreen(won);
+        
+        this.messageContainer.classList.add('active', type);
+    }
 
-        // this.messageContainer.classList.add(type);
-        this.messageContainer.classList.add('active', type); // Use 'active' to control visibility
-        this.messageContainer.querySelector('p').textContent = messageText;
+    // 新的结算界面显示方法
+    showResultScreen(won) {
+        // 获取游戏统计数据
+        const gameStats = this.calculateGameStats();
+        
+        // 更新结算界面内容
+        this.updateResultContent(won, gameStats);
+    }
+
+    // 计算游戏统计数据
+    calculateGameStats() {
+        // 找到最高瓦片
+        let maxTileValue = 2;
+        const grid = this.grid;
+        
+        if (grid && grid.cells) {
+            grid.cells.forEach(column => {
+                column.forEach(cell => {
+                    if (cell && cell.value > maxTileValue) {
+                        maxTileValue = cell.value;
+                    }
+                });
+            });
+        }
+
+        // 计算移动次数（从游戏开始的模拟数据，实际实现需要跟踪）
+        const moves = this.getMoveCount();
+        
+        // 计算游戏时间（模拟数据，实际实现需要跟踪）
+        const gameTime = this.getGameTime();
+        
+        // 计算效率指数
+        const efficiency = this.calculateEfficiency(maxTileValue, moves);
+        
+        // 计算超越百分比
+        const rankPercentage = this.calculateRankPercentage(maxTileValue);
+        
+        return {
+            maxTile: maxTileValue,
+            moves: moves,
+            gameTime: gameTime,
+            efficiency: efficiency,
+            rankPercentage: rankPercentage,
+            score: this.score
+        };
+    }
+
+    // 获取移动次数（临时实现，应该在Game类中跟踪）
+    getMoveCount() {
+        return Math.floor(Math.random() * 200) + 50; // 模拟数据
+    }
+
+    // 获取游戏时间（临时实现，应该在Game类中跟踪）
+    getGameTime() {
+        const minutes = Math.floor(Math.random() * 10) + 1;
+        const seconds = Math.floor(Math.random() * 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // 计算效率指数
+    calculateEfficiency(maxTile, moves) {
+        const efficiencyScore = (Math.log2(maxTile) * 100) / moves;
+        
+        if (efficiencyScore >= 0.8) return 'S';
+        if (efficiencyScore >= 0.6) return 'A';
+        if (efficiencyScore >= 0.4) return 'B';
+        if (efficiencyScore >= 0.2) return 'C';
+        return 'D';
+    }
+
+    // 计算超越百分比
+    calculateRankPercentage(maxTile) {
+        const percentageMap = {
+            2: 15, 4: 25, 8: 35, 16: 45, 32: 55, 64: 65,
+            128: 75, 256: 82, 512: 88, 1024: 93, 2048: 97, 4096: 99
+        };
+        return percentageMap[maxTile] || 15;
+    }
+
+    // 获取蛋糕图片名称
+    getCupcakeImageName(value) {
+        const imageNames = {
+            2: 'vanilla-cupcake',
+            4: 'strawberry-vanilla-cupcake',
+            8: 'lemon-cupcake',
+            16: 'red-velvet-cupcake',
+            32: 'mint-cupcake',
+            64: 'jumbo-oreo-cupcake',
+            128: 'birthday-cupcake',
+            256: 'royal-blue-cupcake',
+            512: 'caramel-cupcake',
+            1024: 'pink-champagne-cupcake',
+            2048: 'christmas-cupcake'
+        };
+        return imageNames[value] || 'vanilla-cupcake';
+    }
+
+    // 更新结算界面内容
+    updateResultContent(won, stats) {
+        // 更新主图片
+        const resultImg = document.getElementById('result-cupcake-img');
+        resultImg.src = `img/${stats.maxTile}-${this.getCupcakeImageName(stats.maxTile)}.webp`;
+        resultImg.alt = `${stats.maxTile} - ${this.getCupcakeName(stats.maxTile)}`;
+
+        // 更新标题
+        const resultTitle = document.getElementById('result-title');
+        resultTitle.textContent = this.getResultTitle(won, stats.maxTile);
+
+        // 更新主要统计信息 - 改为英文
+        document.getElementById('result-score-text').textContent = 
+            `You scored ${stats.score.toLocaleString()} points!`;
+        
+        document.getElementById('result-cupcake-text').textContent = 
+            `Successfully baked ${stats.maxTile}-${this.getCupcakeName(stats.maxTile)}!`;
+        
+        document.getElementById('result-rank-text').textContent = 
+            `Beat ${stats.rankPercentage}% of global bakers!`;
+
+        // 更新详细统计
+        document.getElementById('result-max-tile').textContent = stats.maxTile;
+        document.getElementById('result-moves').textContent = stats.moves;
+        document.getElementById('result-time').textContent = stats.gameTime;
+        document.getElementById('result-efficiency').textContent = stats.efficiency;
+    }
+
+    // 获取结果标题
+    getResultTitle(won, maxTile) {
+        if (won) {
+            if (maxTile >= 2048) return 'Master Baker! 🏆';
+            if (maxTile >= 1024) return 'Excellent Work! ⭐';
+            return 'Amazing Work! 🎉';
+        } else {
+            if (maxTile >= 512) return 'Almost There! 🌟';
+            if (maxTile >= 128) return 'Keep Going! 💪';
+            return 'Keep Baking! 🔥';
+        }
     }
 
     // Clear the game message

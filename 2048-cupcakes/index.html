@@ -192,9 +192,71 @@
                 </div>
 
                 <div class="game-message">
-                    <p></p>
-                    <div class="game-message-buttons">
-                        <button id="retry-button">Try again</button>
+                    <div class="result-container">
+                        <div class="result-header">
+                            <div class="result-cupcake">
+                                <img id="result-cupcake-img" src="" alt="">
+                                <div class="result-cupcake-glow"></div>
+                            </div>
+                            <h2 id="result-title">Amazing Work!</h2>
+                            <div class="result-confetti"></div>
+                        </div>
+                        
+                        <div class="result-stats">
+                            <div class="main-stat">
+                                <span class="stat-icon">🎯</span>
+                                <span id="result-score-text">You scored 0 points!</span>
+                            </div>
+                            <div class="main-stat">
+                                <span class="stat-icon">🧁</span>
+                                <span id="result-cupcake-text">Successfully baked 2-Vanilla Cupcake!</span>
+                            </div>
+                            <div class="main-stat">
+                                <span class="stat-icon">🏆</span>
+                                <span id="result-rank-text">Beat 15% of global bakers!</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-details">
+                            <h3>Baking Results</h3>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-icon">🏅</span>
+                                    <div class="detail-info">
+                                        <div class="detail-label">Highest Cupcake</div>
+                                        <div class="detail-value" id="result-max-tile">2</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">🔥</span>
+                                    <div class="detail-info">
+                                        <div class="detail-label">Total Moves</div>
+                                        <div class="detail-value" id="result-moves">0</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">⏱️</span>
+                                    <div class="detail-info">
+                                        <div class="detail-label">Game Time</div>
+                                        <div class="detail-value" id="result-time">00:00</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">🎯</span>
+                                    <div class="detail-info">
+                                        <div class="detail-label">Efficiency</div>
+                                        <div class="detail-value" id="result-efficiency">C</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="game-message-buttons">
+                            <button id="retry-button">
+                                <span class="btn-icon">🔄</span>
+                                Try Again
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
