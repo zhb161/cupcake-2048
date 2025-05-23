@@ -46,7 +46,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    padding-top: 100px;
+    padding-top: 120px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -536,7 +536,7 @@ footer {
 /* Responsive Design */
 @media (max-width: 900px) {
     body {
-        padding-top: 140px;
+        padding-top: 160px;
     }
     header {
         flex-wrap: wrap;
@@ -576,7 +576,7 @@ footer {
 
 @media (max-width: 600px) {
     body {
-        padding-top: 180px;
+        padding-top: 200px;
     }
     header {
         flex-wrap: wrap;
@@ -767,18 +767,9 @@ footer p:last-child {
 
 /* Mobile Responsive Updates for New Elements */
 @media (max-width: 900px) {
+    /* Hide game recommendations on mobile to prioritize gallery */
     .game-container .other-games {
-        padding: 15px;
-        margin-top: 15px;
-    }
-    
-    .game-container .games-recommendation {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .game-container .game-rec-item {
-        padding: 10px;
+        display: none;
     }
     
     .game-rec-icon {
@@ -798,35 +789,25 @@ footer p:last-child {
 }
 
 @media (max-width: 600px) {
-    .game-container .games-recommendation {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-    }
-    
-    .game-container .game-rec-item {
-        padding: 8px;
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .game-container .game-rec-icon {
-        margin-right: 0;
-        margin-bottom: 5px;
-        width: 28px;
-        height: 28px;
-        font-size: 1rem;
-    }
-    
     .footer-games-nav p {
         font-size: 0.8rem;
         line-height: 1.4;
     }
     
-    .game-container .other-games h2 {
+    .cupcake-item {
+        width: calc(50% - 7.5px);
+    }
+    .cupcake-list {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    .cupcake-item p {
+        font-size: 0.7rem;
+    }
+    .personal-best h2, .cupcake-gallery h2 {
         font-size: 1.1rem;
     }
-    
-    .game-container .other-games p {
+    .record-item, .cupcake-gallery p:first-of-type {
         font-size: 0.8rem;
     }
 }
