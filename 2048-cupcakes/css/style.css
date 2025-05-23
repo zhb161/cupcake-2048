@@ -635,4 +635,250 @@ footer {
     .record-item, .cupcake-gallery p:first-of-type {
         font-size: 0.8rem;
     }
+}
+
+/* Other Games Recommendation Styles */
+.other-games {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.dark-theme .other-games {
+    background-color: var(--grid-color);
+}
+
+.other-games h2 {
+    color: var(--tertiary-color);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.other-games p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+.games-recommendation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.game-rec-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border: 1px solid var(--grid-cell-color);
+}
+
+.game-rec-item:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.game-rec-item.coming-soon {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.game-rec-item.coming-soon:hover {
+    transform: none;
+    background-color: var(--background-color);
+}
+
+.game-rec-icon {
+    font-size: 1.5rem;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.game-rec-info h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.game-rec-info p {
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+/* Footer Games Navigation Styles */
+.footer-games-nav {
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--grid-cell-color);
+}
+
+.footer-games-nav p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-games-nav a {
+    color: var(--tertiary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.footer-games-nav a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.footer-games-nav .coming-soon {
+    color: var(--accent-color);
+    opacity: 0.7;
+}
+
+footer p:last-child {
+    text-align: center;
+    color: var(--accent-color);
+    font-size: 0.8rem;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+/* Mobile Responsive Updates for New Elements */
+@media (max-width: 900px) {
+    .game-container .other-games {
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    .game-container .games-recommendation {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .game-container .game-rec-item {
+        padding: 10px;
+    }
+    
+    .game-rec-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1.3rem;
+        margin-right: 10px;
+    }
+    
+    .game-rec-info h3 {
+        font-size: 0.85rem;
+    }
+    
+    .game-rec-info p {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .game-container .games-recommendation {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .game-container .game-rec-item {
+        padding: 8px;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .game-container .game-rec-icon {
+        margin-right: 0;
+        margin-bottom: 5px;
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+    }
+    
+    .footer-games-nav p {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+    
+    .game-container .other-games h2 {
+        font-size: 1.1rem;
+    }
+    
+    .game-container .other-games p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Other Games Recommendation Styles - Inside game container */
+.game-container .other-games {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.dark-theme .game-container .other-games {
+    background-color: rgba(74, 78, 105, 0.9);
+}
+
+/* Override the general other-games styles when inside game container */
+.game-container .other-games h2 {
+    color: var(--tertiary-color);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.game-container .other-games p {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+.game-container .games-recommendation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.game-container .game-rec-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border: 1px solid var(--grid-cell-color);
+}
+
+.game-container .game-rec-item:hover {
+    background-color: var(--tile-color);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 } 
