@@ -46,7 +46,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    padding-top: 120px;
+    padding-top: 140px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -166,6 +166,7 @@ main {
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: 30px;
+    margin-top: 30px;
 }
 
 .sidebar {
@@ -536,7 +537,7 @@ footer {
 /* Responsive Design */
 @media (max-width: 900px) {
     body {
-        padding-top: 160px;
+        padding-top: 180px;
     }
     header {
         flex-wrap: wrap;
@@ -565,6 +566,7 @@ footer {
     }
     main {
         grid-template-columns: 1fr;
+        margin-top: 20px;
     }
     .seo-content {
         grid-template-columns: 1fr;
@@ -576,7 +578,7 @@ footer {
 
 @media (max-width: 600px) {
     body {
-        padding-top: 200px;
+        padding-top: 220px;
     }
     header {
         flex-wrap: wrap;
@@ -602,6 +604,9 @@ footer {
         order: 3;
         width: 100%;
         text-align: center;
+    }
+    main {
+        margin-top: 15px;
     }
     .logo h1 {
         font-size: 1.7rem;
