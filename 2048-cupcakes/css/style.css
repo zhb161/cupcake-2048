@@ -212,11 +212,11 @@ main {
     height: 100%;
     background-color: var(--grid-color);
     border-radius: 6px;
-    padding: 15px;
+    padding: 10px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    gap: 15px;
+    gap: 10px;
     transition: background-color 0.3s ease;
 }
 
@@ -234,13 +234,13 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 15px;
+    padding: 10px;
 }
 
 .tile {
     position: absolute;
-    width: calc((100% - 75px) / 4);
-    height: calc((100% - 75px) / 4);
+    width: calc((100% - 50px) / 4);
+    height: calc((100% - 50px) / 4);
     border-radius: 3px;
     background-size: cover;
     background-position: center;
@@ -535,6 +535,20 @@ footer {
 }
 
 /* Responsive Design */
+@media (min-width: 601px) {
+    .grid-background {
+        gap: 15px;
+        padding: 15px;
+    }
+    .grid-tiles {
+        padding: 15px;
+    }
+    .tile {
+        width: calc((100% - 75px) / 4);
+        height: calc((100% - 75px) / 4);
+    }
+}
+
 @media (max-width: 900px) {
     body {
         padding-top: 180px;
@@ -616,14 +630,7 @@ footer {
         padding: 8px 15px;
         font-size: 0.9rem;
     }
-    .grid-background {
-        gap: 10px;
-        padding: 10px;
-    }
-    .tile {
-        width: calc(25% - 10px);
-        height: calc(25% - 10px);
-    }
+    
     .cupcake-item {
         width: calc(50% - 7.5px);
     }
