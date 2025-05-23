@@ -46,7 +46,6 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    padding-top: 140px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -62,16 +61,12 @@ header {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    padding: 10px 20px;
+    padding: 20px;
     background-color: var(--background-color);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     min-height: 80px;
     transition: background-color 0.3s ease;
+    margin-bottom: 20px;
 }
 
 .logo h1 {
@@ -166,7 +161,6 @@ main {
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: 30px;
-    margin-top: 30px;
 }
 
 .sidebar {
@@ -860,14 +854,11 @@ footer {
 }
 
 @media (max-width: 900px) {
-    body {
-        padding-top: 180px;
-    }
     header {
         flex-wrap: wrap;
         height: auto;
         justify-content: center;
-        padding: 10px 30px;
+        padding: 15px 30px;
     }
     .container {
         padding: 0 30px;
@@ -890,7 +881,6 @@ footer {
     }
     main {
         grid-template-columns: 1fr;
-        margin-top: 20px;
     }
     .seo-content {
         grid-template-columns: 1fr;
@@ -901,9 +891,6 @@ footer {
 }
 
 @media (max-width: 600px) {
-    body {
-        padding-top: 220px;
-    }
     header {
         flex-wrap: wrap;
         height: auto;
@@ -928,9 +915,6 @@ footer {
         order: 3;
         width: 100%;
         text-align: center;
-    }
-    main {
-        margin-top: 15px;
     }
     .logo h1 {
         font-size: 1.7rem;
@@ -1089,11 +1073,6 @@ footer p:last-child {
 
 /* Mobile Responsive Updates for New Elements */
 @media (max-width: 900px) {
-    /* Hide game recommendations on mobile to prioritize gallery */
-    .game-container .other-games {
-        display: none;
-    }
-    
     .game-rec-icon {
         width: 35px;
         height: 35px;
