@@ -12,6 +12,8 @@ class Game {
         this.won = false;
         this.keepPlaying = false;
         this.actuator = actuator;
+        this.moveCount = 0; // 添加移动次数统计
+        this.gameStartTime = Date.now(); // 添加游戏开始时间
         this.setup();
     }
 
@@ -162,6 +164,7 @@ class Game {
 
         if (moved) {
             this.addRandomTile();
+            this.moveCount++; // 增加移动次数
 
             if (!this.movesAvailable()) {
                 this.over = true; // Game over!
@@ -275,6 +278,8 @@ class Game {
         this.over = false;
         this.won = false;
         this.keepPlaying = false;
+        this.moveCount = 0; // 重置移动次数
+        this.gameStartTime = Date.now(); // 重置游戏开始时间
         this.setup();
     }
 
@@ -456,6 +461,7 @@ class HTMLActuator {
         this.messageContainer = document.querySelector('.game-message');
         this.score = 0;
         this.grid = null; // 用于存储grid引用
+        this.gameInstance = null; // 用于存储Game实例引用
         
         // 添加新按钮的事件监听器
         this.bindButtons();
@@ -463,8 +469,30 @@ class HTMLActuator {
 
     // 绑定按钮事件
     bindButtons() {
-        // 删除分享按钮和返回菜单按钮的事件监听器
-        // 只保留重试按钮的事件处理，它在KeyboardInputManager中已经处理
+        // 绑定结算界面的Try Again按钮
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('game-message-buttons') || 
+                event.target.closest('.game-message-buttons')) {
+                // 找到具体的按钮
+                const button = event.target.tagName === 'BUTTON' ? 
+                              event.target : 
+                              event.target.closest('button');
+                
+                if (button && button.textContent.includes('Try Again')) {
+                    // 触发重新开始游戏
+                    const restartEvent = new CustomEvent('restart');
+                    document.dispatchEvent(restartEvent);
+                    
+                    // 直接调用游戏管理器的重启方法
+                    if (window.gameManager) {
+                        window.gameManager.restart();
+                    }
+                    
+                    // 清除消息界面
+                    this.clearMessage();
+                }
+            }
+        });
     }
 
     // 获取蛋糕名称 - 改为英文
@@ -638,10 +666,10 @@ class HTMLActuator {
             });
         }
 
-        // 计算移动次数（从游戏开始的模拟数据，实际实现需要跟踪）
+        // 计算移动次数（从Game实例获取真实数据）
         const moves = this.getMoveCount();
         
-        // 计算游戏时间（模拟数据，实际实现需要跟踪）
+        // 计算游戏时间（从Game实例获取真实数据）
         const gameTime = this.getGameTime();
         
         // 计算效率指数
@@ -660,15 +688,18 @@ class HTMLActuator {
         };
     }
 
-    // 获取移动次数（临时实现，应该在Game类中跟踪）
+    // 获取移动次数（从Game实例获取真实数据）
     getMoveCount() {
-        return Math.floor(Math.random() * 200) + 50; // 模拟数据
+        return this.gameInstance ? this.gameInstance.moveCount : 0;
     }
 
-    // 获取游戏时间（临时实现，应该在Game类中跟踪）
+    // 获取游戏时间（从Game实例获取真实数据）
     getGameTime() {
-        const minutes = Math.floor(Math.random() * 10) + 1;
-        const seconds = Math.floor(Math.random() * 60);
+        if (!this.gameInstance) return '0:00';
+        
+        const gameTimeMs = Date.now() - this.gameInstance.gameStartTime;
+        const minutes = Math.floor(gameTimeMs / 60000);
+        const seconds = Math.floor((gameTimeMs % 60000) / 1000);
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
 
@@ -810,17 +841,36 @@ class KeyboardInputManager {
 
         gameContainer.addEventListener('touchstart', event => {
             if (event.touches.length > 1) return;
+            
+            // Check if touch target is a button - don't prevent default for buttons
+            const target = event.target;
+            if (target.tagName === 'BUTTON' || target.closest('button')) {
+                return; // Let button handle the touch normally
+            }
+            
             touchStartClientX = event.touches[0].clientX;
             touchStartClientY = event.touches[0].clientY;
             event.preventDefault();
         });
 
         gameContainer.addEventListener('touchmove', event => {
+            // Check if touch target is a button - don't prevent default for buttons
+            const target = event.target;
+            if (target.tagName === 'BUTTON' || target.closest('button')) {
+                return; // Let button handle the touch normally
+            }
+            
             event.preventDefault();
         });
 
         gameContainer.addEventListener('touchend', event => {
             if (event.touches.length > 0) return;
+            
+            // Check if touch target is a button - don't prevent default for buttons
+            const target = event.changedTouches[0].target;
+            if (target.tagName === 'BUTTON' || target.closest('button')) {
+                return; // Let button handle the touch normally
+            }
 
             const touchEndClientX = event.changedTouches[0].clientX;
             const touchEndClientY = event.changedTouches[0].clientY;
@@ -876,6 +926,7 @@ class GameManager {
         this.inputManager = new KeyboardInputManager();
         this.actuator = new HTMLActuator();
         this.game = new Game(this.actuator);
+        this.actuator.gameInstance = this.game; // 传递Game实例引用给actuator
         this.solver = new SmartAI(this.game);
 
         this.isAutoPlaying = false;
@@ -923,6 +974,7 @@ class GameManager {
             this.stopAutoPlay();
         }
         this.game.restart();
+        this.actuator.gameInstance = this.game; // 确保引用正确
         this.scanGridAndUnlockRevealed(); // Scan after restart
         // No need to update gallery display here, scanGridAndUnlockRevealed will if changes are made
     }
@@ -1370,6 +1422,6 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('dark-theme');
     }
 
-    // Start the game
-    new GameManager();
+    // Start the game and make it globally accessible
+    window.gameManager = new GameManager();
 }); 

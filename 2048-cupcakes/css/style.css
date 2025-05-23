@@ -646,6 +646,8 @@ main {
     .result-container {
         padding: 20px;
         margin: 10px;
+        position: relative;
+        z-index: 35;
     }
     
     .result-cupcake img {
@@ -669,12 +671,24 @@ main {
     
     .game-message-buttons {
         gap: 8px;
+        position: relative;
+        z-index: 40;
+        margin-top: 20px;
     }
     
     .game-message-buttons button {
-        padding: 12px 24px;
-        font-size: 0.9rem;
-        min-width: 120px;
+        padding: 15px 30px;
+        font-size: 1rem;
+        min-width: 140px;
+        position: relative;
+        z-index: 41;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+    }
+    
+    .game-message-buttons button:active {
+        transform: translateY(-1px) scale(0.98);
     }
 }
 
@@ -1073,6 +1087,11 @@ footer p:last-child {
 
 /* Mobile Responsive Updates for New Elements */
 @media (max-width: 900px) {
+    /* Hide game recommendations on mobile to save space */
+    .game-container .other-games {
+        display: none;
+    }
+    
     .game-rec-icon {
         width: 35px;
         height: 35px;
