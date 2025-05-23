@@ -445,6 +445,63 @@ main {
     font-weight: 600;
 }
 
+.result-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 25px 0 20px 0;
+    animation: brandFadeIn 0.8s ease-out 1s both;
+}
+
+.brand-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent-color) 50%, transparent 100%);
+    opacity: 0.6;
+}
+
+.brand-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin: 0 15px;
+    letter-spacing: 1px;
+    text-transform: lowercase;
+    position: relative;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.game-message.game-won .brand-text {
+    background: linear-gradient(45deg, #FFD700, #FF8C42);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.game-message.game-over .brand-text {
+    color: #4A90E2;
+}
+
+.game-message.game-won .brand-line {
+    background: linear-gradient(90deg, transparent 0%, #FFD700 50%, transparent 100%);
+}
+
+.game-message.game-over .brand-line {
+    background: linear-gradient(90deg, transparent 0%, #4A90E2 50%, transparent 100%);
+}
+
+@keyframes brandFadeIn {
+    0% { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
 .detail-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -667,6 +724,16 @@ main {
     .detail-grid {
         grid-template-columns: 1fr;
         gap: 8px;
+    }
+    
+    .result-brand {
+        margin: 20px 0 15px 0;
+    }
+    
+    .brand-text {
+        font-size: 0.7rem;
+        margin: 0 12px;
+        letter-spacing: 0.8px;
     }
     
     .game-message-buttons {
