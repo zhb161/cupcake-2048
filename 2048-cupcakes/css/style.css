@@ -1,0 +1,638 @@
+/* Base Styles and Variables */
+:root {
+    --primary-color: #F8B195;
+    --secondary-color: #F67280;
+    --tertiary-color: #C06C84;
+    --background-color: #FFF5E6;
+    --accent-color: #6C5B7B;
+    --text-color: #333;
+    --grid-color: #BBADA0;
+    --grid-cell-color: rgba(238, 228, 218, 0.35);
+    --tile-color: #EEE4DA;
+    --tile-2-color: #EEE4DA;
+    --tile-4-color: #EDE0C8;
+    --tile-8-color: #F2B179;
+    --tile-16-color: #F59563;
+    --tile-32-color: #F67C5F;
+    --tile-64-color: #F65E3B;
+    --tile-128-color: #EDCF72;
+    --tile-256-color: #EDCC61;
+    --tile-512-color: #EDC850;
+    --tile-1024-color: #EDC53F;
+    --tile-2048-color: #EDC22E;
+    --font-family: 'Quicksand', sans-serif;
+}
+
+/* Dark Theme Variables */
+.dark-theme {
+    --primary-color: #6D597A;
+    --secondary-color: #B56576;
+    --tertiary-color: #E56B6F;
+    --background-color: #355070;
+    --accent-color: #EAAC8B;
+    --text-color: #E8E8E8;
+    --grid-color: #4A4E69;
+    --grid-cell-color: rgba(80, 80, 100, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    padding-top: 100px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 20px;
+    background-color: var(--background-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-height: 80px;
+    transition: background-color 0.3s ease;
+}
+
+.logo h1 {
+    color: var(--tertiary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+    transition: color 0.3s ease;
+    margin-right: 20px;
+}
+
+.scores-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.score, .best-score {
+    background-color: var(--tertiary-color);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 5px;
+    text-align: center;
+    min-width: 80px;
+    transition: background-color 0.3s ease;
+}
+
+.score-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+#current-score, #best-score {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.main-nav button,
+.ai-speed-controls button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.main-nav button:hover,
+.ai-speed-controls button:hover {
+    background-color: var(--tertiary-color);
+    transform: translateY(-2px);
+}
+
+.main-nav button.active,
+.ai-speed-controls button.active {
+    background-color: var(--tertiary-color);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3) inset;
+    transform: translateY(0);
+}
+
+.ai-speed-controls {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ai-speed-controls span {
+    margin-right: 8px;
+    white-space: nowrap;
+    margin-left: 5px;
+}
+
+/* Main Content Layout */
+main {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 30px;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Game Container */
+.game-container {
+    background-color: var(--primary-color);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.game-header {
+    margin-bottom: 10px;
+    min-height: 20px;
+}
+
+.game-intro {
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+/* Grid Styles */
+.grid-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    margin-bottom: 20px;
+}
+
+.grid-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--grid-color);
+    border-radius: 6px;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.grid-cell {
+    background-color: var(--grid-cell-color);
+    border-radius: 3px;
+    width: 100%;
+    height: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.grid-tiles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+}
+
+.tile {
+    position: absolute;
+    width: calc((100% - 75px) / 4);
+    height: calc((100% - 75px) / 4);
+    border-radius: 3px;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    font-weight: bold;
+    z-index: 10;
+    transition: left 0.1s ease-out, top 0.1s ease-out, transform 0.2s ease, opacity 0.2s ease;
+}
+
+.tile-2 { background-image: url('../img/2-vanilla-cupcake.webp'); }
+.tile-4 { background-image: url('../img/4-strawberry-vanilla-cupcake.webp'); }
+.tile-8 { background-image: url('../img/8-lemon-cupcake.webp'); }
+.tile-16 { background-image: url('../img/16-red-velvet-cupcake.webp'); }
+.tile-32 { background-image: url('../img/32-mint-cupcake.webp'); }
+.tile-64 { background-image: url('../img/64-jumbo-oreo-cupcake.webp'); }
+.tile-128 { background-image: url('../img/128-birthday-cupcake.webp'); }
+.tile-256 { background-image: url('../img/256-royal-blue-cupcake.webp'); }
+.tile-512 { background-image: url('../img/512-caramel-cupcake.webp'); }
+.tile-1024 { background-image: url('../img/1024-pink-champagne-cupcake.webp'); }
+.tile-2048 { background-image: url('../img/2048-christmas-cupcake.webp'); }
+
+.tile-merged {
+    z-index: 20;
+    animation: pop 0.3s ease 0.1s;
+    animation-fill-mode: backwards;
+}
+
+.tile-new {
+    animation: appear 0.2s ease 0.1s;
+    animation-fill-mode: backwards;
+}
+
+@keyframes appear {
+    0% { opacity: 0; transform: scale(0); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pop {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.game-message {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(248, 177, 149, 0.85);
+    z-index: 30;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.game-message.active {
+    display: flex;
+    opacity: 1;
+}
+
+.game-message p {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: var(--accent-color);
+}
+
+.game-message.game-won {
+    background: rgba(246, 114, 128, 0.85);
+}
+
+.game-message.game-won p {
+    color: white;
+}
+
+.game-message.game-over {
+    background: rgba(246, 114, 128, 0.85);
+}
+
+.game-message.game-over p {
+    color: white;
+}
+
+.dark-theme .game-message.game-won {
+    background: rgba(234, 172, 139, 0.85);
+}
+
+.dark-theme .game-message.game-won p {
+    color: var(--background-color);
+}
+
+.dark-theme .game-message.game-over {
+    background: rgba(229, 107, 111, 0.85);
+}
+
+.dark-theme .game-message.game-over p {
+    color: white;
+}
+
+.game-message-buttons button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-weight: 700;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.game-message-buttons button:hover {
+    background-color: var(--tertiary-color);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.dark-theme .game-message-buttons button {
+    background-color: var(--tertiary-color);
+}
+
+.dark-theme .game-message-buttons button:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Personal Best Section */
+.personal-best {
+    background-color: var(--secondary-color);
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.personal-best h2 {
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.record-card {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.record-item {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.record-item:last-child {
+    margin-bottom: 0;
+}
+
+.record-label {
+    font-weight: 600;
+}
+
+/* Cupcake Gallery Adjustments */
+.cupcake-gallery {
+    background-color: var(--background-color);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.cupcake-gallery h2 {
+    color: var(--tertiary-color);
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.cupcake-gallery p:first-of-type {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.cupcake-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 0;
+}
+
+.cupcake-item {
+    text-align: center;
+}
+
+.cupcake-item img {
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 5px auto;
+    transition: box-shadow 0.3s ease;
+}
+
+.cupcake-item p {
+    font-size: 0.8rem;
+    margin-top: 0;
+    color: var(--text-color);
+}
+
+/* Cupcake Gallery Locked Item Styling */
+.cupcake-item.locked img {
+    opacity: 0.15;
+    filter: grayscale(90%) blur(1px); /* Make it very faint, desaturated and slightly blurred */
+    transition: opacity 0.3s ease, filter 0.3s ease; /* Smooth transition when unlocked */
+}
+
+.cupcake-item.locked p {
+    color: var(--grid-cell-color); /* Make the number very faint, like an empty cell background */
+    font-weight: normal; /* Less prominent */
+}
+
+/* Optional: Style for when an item is newly unlocked (can be timed with JS) */
+.cupcake-item.newly-unlocked {
+    animation: flashUnlock 0.8s ease-out;
+}
+
+@keyframes flashUnlock {
+    0% { transform: scale(1); box-shadow: 0 0 0px var(--accent-color); }
+    30% { transform: scale(1.05); box-shadow: 0 0 10px 3px var(--accent-color); }
+    100% { transform: scale(1); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); } /* Return to normal shadow */
+}
+
+/* SEO Content Section - Adjust if needed after gallery removal */
+.seo-content {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.seo-content h2 {
+    color: var(--tertiary-color);
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+.seo-content p,
+.seo-content li {
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.seo-content ul {
+    list-style-position: inside;
+    padding-left: 0;
+}
+
+.how-to-play ul,
+.tips-strategies ul {
+    list-style-type: disc;
+    list-style-position: outside;
+    padding-left: 25px;
+    margin-left: 0;
+}
+
+.how-to-play li,
+.tips-strategies li {
+}
+
+.dark-theme .cupcake-item img {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Footer */
+footer {
+    margin-top: 50px;
+    text-align: center;
+    color: var(--tertiary-color);
+    padding: 20px 0;
+    border-top: 1px solid var(--primary-color);
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    body {
+        padding-top: 140px;
+    }
+    header {
+        flex-wrap: wrap;
+        height: auto;
+        justify-content: center;
+        padding: 10px 30px;
+    }
+    .container {
+        padding: 0 30px;
+    }
+    .logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .scores-container {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top:10px;
+    }
+    .main-nav {
+        order: 2;
+        width: 100%;
+        text-align: center;
+    }
+    main {
+        grid-template-columns: 1fr;
+    }
+    .seo-content {
+        grid-template-columns: 1fr;
+    }
+    .cupcake-item {
+        width: calc(33.333% - 10px);
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding-top: 180px;
+    }
+    header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px 15px;
+        justify-content: center;
+    }
+    .container {
+        padding: 0 15px;
+    }
+    .logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .scores-container {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    .main-nav {
+        order: 3;
+        width: 100%;
+        text-align: center;
+    }
+    .logo h1 {
+        font-size: 1.7rem;
+    }
+    .main-nav button {
+        margin: 5px;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+    .grid-background {
+        gap: 10px;
+        padding: 10px;
+    }
+    .tile {
+        width: calc(25% - 10px);
+        height: calc(25% - 10px);
+    }
+    .cupcake-item {
+        width: calc(50% - 7.5px);
+    }
+    .cupcake-list {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    .cupcake-item p {
+        font-size: 0.7rem;
+    }
+    .personal-best h2, .cupcake-gallery h2 {
+        font-size: 1.1rem;
+    }
+    .record-item, .cupcake-gallery p:first-of-type {
+        font-size: 0.8rem;
+    }
+} 
