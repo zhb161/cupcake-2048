@@ -294,6 +294,8 @@ main {
     border-radius: 6px;
     transition: all 0.3s ease;
     opacity: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .game-message.active {

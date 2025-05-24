@@ -848,9 +848,9 @@ class KeyboardInputManager {
                 return; // Let button handle the touch normally
             }
             
-            // Check if touch is in result container - allow scrolling
-            if (target.closest('.result-container')) {
-                return; // Let result container handle scrolling normally
+            // Check if touch is in game message area - allow scrolling
+            if (target.closest('.game-message')) {
+                return; // Let game message area handle scrolling normally
             }
             
             touchStartClientX = event.touches[0].clientX;
@@ -865,9 +865,9 @@ class KeyboardInputManager {
                 return; // Let button handle the touch normally
             }
             
-            // Check if touch is in result container - allow scrolling
-            if (target.closest('.result-container')) {
-                return; // Let result container handle scrolling normally
+            // Check if touch is in game message area - allow scrolling
+            if (target.closest('.game-message')) {
+                return; // Let game message area handle scrolling normally
             }
             
             event.preventDefault();
@@ -882,9 +882,9 @@ class KeyboardInputManager {
                 return; // Let button handle the touch normally
             }
 
-            // Check if touch is in result container - don't trigger moves
-            if (target.closest('.result-container')) {
-                return; // Don't trigger game moves in result container
+            // Check if touch is in game message area - don't trigger moves
+            if (target.closest('.game-message')) {
+                return; // Don't trigger game moves in game message area
             }
 
             const touchEndClientX = event.changedTouches[0].clientX;
