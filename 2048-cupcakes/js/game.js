@@ -848,6 +848,11 @@ class KeyboardInputManager {
                 return; // Let button handle the touch normally
             }
             
+            // Check if touch is in result container - allow scrolling
+            if (target.closest('.result-container')) {
+                return; // Let result container handle scrolling normally
+            }
+            
             touchStartClientX = event.touches[0].clientX;
             touchStartClientY = event.touches[0].clientY;
             event.preventDefault();
@@ -860,6 +865,11 @@ class KeyboardInputManager {
                 return; // Let button handle the touch normally
             }
             
+            // Check if touch is in result container - allow scrolling
+            if (target.closest('.result-container')) {
+                return; // Let result container handle scrolling normally
+            }
+            
             event.preventDefault();
         });
 
@@ -870,6 +880,11 @@ class KeyboardInputManager {
             const target = event.changedTouches[0].target;
             if (target.tagName === 'BUTTON' || target.closest('button')) {
                 return; // Let button handle the touch normally
+            }
+
+            // Check if touch is in result container - don't trigger moves
+            if (target.closest('.result-container')) {
+                return; // Don't trigger game moves in result container
             }
 
             const touchEndClientX = event.changedTouches[0].clientX;

@@ -294,7 +294,6 @@ main {
     border-radius: 6px;
     transition: all 0.3s ease;
     opacity: 0;
-    backdrop-filter: blur(8px);
 }
 
 .game-message.active {
@@ -311,7 +310,6 @@ main {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     animation: resultSlideIn 0.6s ease-out;
     border: 3px solid transparent;
-    backdrop-filter: blur(10px);
 }
 
 .game-message.game-won .result-container {
@@ -701,52 +699,81 @@ main {
 /* 移动端响应式 */
 @media (max-width: 600px) {
     .result-container {
-        padding: 20px;
-        margin: 10px;
+        padding: 15px;
+        margin: 5px;
         position: relative;
         z-index: 35;
+        max-height: 85vh; /* 限制最大高度为视口的85% */
+        overflow-y: auto; /* 允许垂直滚动 */
+        -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
     }
     
     .result-cupcake img {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
     }
     
     #result-title {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
+        margin: 8px 0;
+    }
+    
+    .result-header {
+        margin-bottom: 15px;
+    }
+    
+    .result-stats {
+        margin: 15px 0;
     }
     
     .main-stat {
-        font-size: 0.9rem;
-        padding: 6px 12px;
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        margin: 8px 0;
     }
     
     .detail-grid {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 6px;
     }
     
-    .result-brand {
-        margin: 20px 0 15px 0;
+    .detail-item {
+        padding: 8px;
     }
     
-    .brand-text {
+    .detail-label {
         font-size: 0.7rem;
-        margin: 0 12px;
-        letter-spacing: 0.8px;
+    }
+    
+    .detail-value {
+        font-size: 0.85rem;
+    }
+    
+    .result-details {
+        margin: 15px 0;
+    }
+    
+    .result-details h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    
+    /* 在手机端隐藏品牌信息以节省空间 */
+    .result-brand {
+        display: none;
     }
     
     .game-message-buttons {
         gap: 8px;
         position: relative;
         z-index: 40;
-        margin-top: 20px;
+        margin-top: 15px;
     }
     
     .game-message-buttons button {
-        padding: 15px 30px;
-        font-size: 1rem;
-        min-width: 140px;
+        padding: 12px 25px;
+        font-size: 0.9rem;
+        min-width: 120px;
         position: relative;
         z-index: 41;
         touch-action: manipulation;
@@ -756,6 +783,12 @@ main {
     
     .game-message-buttons button:active {
         transform: translateY(-1px) scale(0.98);
+    }
+    
+    /* 确保game-message本身也支持滚动 */
+    .game-message {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
