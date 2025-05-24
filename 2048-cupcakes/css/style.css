@@ -184,7 +184,7 @@ main {
 }
 
 .game-intro {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     text-align: center;
     color: var(--text-color);
     transition: color 0.3s ease;
@@ -1032,13 +1032,26 @@ footer {
         width: 100%;
         text-align: center;
     }
+    
     .logo h1 {
         font-size: 1.7rem;
     }
+    
     .main-nav button {
-        margin: 5px;
-        padding: 8px 15px;
-        font-size: 0.9rem;
+        margin: 2px 1px;
+        padding: 5px 6px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    
+    .ai-speed-controls button {
+        margin: 2px 1px;
+        padding: 4px 5px;
+        font-size: 0.6rem;
+    }
+    
+    .game-intro {
+        margin-bottom: 10px;
     }
     
     .cupcake-item {
