@@ -941,14 +941,7 @@ class GameManager {
         document.getElementById('ai-speed-medium').addEventListener('click', () => this.setAISpeed(this.SPEED_MEDIUM));
         document.getElementById('ai-speed-fast').addEventListener('click', () => this.setAISpeed(this.SPEED_FAST));
         
-        this.loadAISpeedPreference();
-        this.updateSpeedButtonUI();
-
-        this.loadShowNumbersPreference();
-
-        this.loadUnlockedCupcakes(); // Load gallery state
-        this.scanGridAndUnlockRevealed(); // Initial scan
-        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
+                this.loadAISpeedPreference();        this.updateSpeedButtonUI();        this.loadShowNumbersPreference();        this.loadThemePreference();        this.loadUnlockedCupcakes(); // Load gallery state        this.scanGridAndUnlockRevealed(); // Initial scan        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
     }
 
     // Renamed from move to onUserMove to avoid clash with Game.move if Game instance needs to call a GM.move
@@ -1059,7 +1052,25 @@ class GameManager {
 
     toggleTheme() {
         document.body.classList.toggle('dark-theme');
-        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        const isDark = document.body.classList.contains('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        this.updateThemeIcon(isDark);
+    }
+    
+    updateThemeIcon(isDark) {
+        const themeIcon = document.querySelector('.theme-icon');
+        if (themeIcon) {
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+        }
+    }
+    
+    loadThemePreference() {
+        const savedTheme = localStorage.getItem('theme');
+        const isDark = savedTheme === 'dark';
+        if (isDark) {
+            document.body.classList.add('dark-theme');
+        }
+        this.updateThemeIcon(isDark);
     }
 
     toggleShowNumbers() {
