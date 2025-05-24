@@ -75,35 +75,7 @@ header {
     gap: 15px;
 }
 
-/* Theme Toggle Button */
-.theme-toggle-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    background-color: var(--grid-cell-color);
-}
-
-.theme-toggle-btn:hover {
-    background-color: var(--accent-color);
-    transform: scale(1.1);
-}
-
-.theme-icon {
-    font-size: 1.2rem;
-    transition: transform 0.3s ease;
-}
-
-.theme-toggle-btn:hover .theme-icon {
-    transform: rotate(180deg);
-}
+/* Theme Toggle Button */.theme-toggle-btn {    background: none;    border: none;    cursor: pointer;    padding: 10px;    border-radius: 50%;    width: 48px;    height: 48px;    display: flex;    align-items: center;    justify-content: center;    transition: all 0.3s ease;    background-color: var(--grid-cell-color);}.theme-toggle-btn:hover {    background-color: var(--accent-color);    transform: scale(1.1);}.theme-icon {    font-size: 1.4rem;    transition: transform 0.3s ease;}.theme-toggle-btn:hover .theme-icon {    transform: rotate(180deg);}
 
 .logo h1 {
     color: var(--tertiary-color);
@@ -121,15 +93,7 @@ header {
     margin: 5px 0;
 }
 
-.score, .best-score {
-    background-color: var(--tertiary-color);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 5px;
-    text-align: center;
-    min-width: 80px;
-    transition: background-color 0.3s ease;
-}
+.score, .best-score {    background-color: var(--tertiary-color);    color: white;    padding: 8px 12px;    border-radius: 8px;    text-align: center;    min-width: 85px;    transition: background-color 0.3s ease;}
 
 .score-title {
     font-size: 0.7rem;
@@ -149,20 +113,7 @@ header {
     margin-top: 5px;
 }
 
-.main-nav button,
-.ai-speed-controls button {
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    margin: 5px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-family: var(--font-family);
-    font-weight: 600;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
+.main-nav button,.ai-speed-controls button {    background-color: var(--accent-color);    color: white;    border: none;    padding: 12px 18px;    margin: 6px;    border-radius: 25px;    cursor: pointer;    font-family: var(--font-family);    font-weight: 600;    font-size: 0.95rem;    transition: all 0.3s ease;    white-space: nowrap;    min-height: 44px;}
 
 .main-nav button:hover,
 .ai-speed-controls button:hover {
@@ -1106,18 +1057,7 @@ footer {
         font-size: 1.7rem;
     }
     
-    .main-nav button {
-        margin: 2px 1px;
-        padding: 5px 6px;
-        font-size: 0.75rem;
-        white-space: nowrap;
-    }
-    
-    .ai-speed-controls button {
-        margin: 2px 1px;
-        padding: 4px 5px;
-        font-size: 0.6rem;
-    }
+        .main-nav button {        margin: 4px 3px;        padding: 10px 14px;        font-size: 0.85rem;        white-space: nowrap;        min-height: 40px;    }        .ai-speed-controls button {        margin: 4px 3px;        padding: 8px 12px;        font-size: 0.75rem;        min-height: 36px;    }
     
     .game-intro {
         margin-bottom: 10px;
