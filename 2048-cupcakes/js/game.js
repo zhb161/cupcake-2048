@@ -831,57 +831,24 @@ class KeyboardInputManager {
         document.getElementById('retry-button').addEventListener('click', this.restart.bind(this));
         document.getElementById('new-game-btn').addEventListener('click', this.restart.bind(this));
 
-        // Respond to swipe events
+        // Respond to swipe events - Only in the grid area
         let touchStartClientX, touchStartClientY;
-        const gameContainer = document.querySelector('.game-container');
+        const gridContainer = document.querySelector('.grid-container');
 
-        gameContainer.addEventListener('touchstart', event => {
+        gridContainer.addEventListener('touchstart', event => {
             if (event.touches.length > 1) return;
-            
-            // Check if touch target is a button - don't prevent default for buttons
-            const target = event.target;
-            if (target.tagName === 'BUTTON' || target.closest('button')) {
-                return; // Let button handle the touch normally
-            }
-            
-            // Check if touch is in game message area - allow scrolling
-            if (target.closest('.game-message')) {
-                return; // Let game message area handle scrolling normally
-            }
             
             touchStartClientX = event.touches[0].clientX;
             touchStartClientY = event.touches[0].clientY;
             event.preventDefault();
         });
 
-        gameContainer.addEventListener('touchmove', event => {
-            // Check if touch target is a button - don't prevent default for buttons
-            const target = event.target;
-            if (target.tagName === 'BUTTON' || target.closest('button')) {
-                return; // Let button handle the touch normally
-            }
-            
-            // Check if touch is in game message area - allow scrolling
-            if (target.closest('.game-message')) {
-                return; // Let game message area handle scrolling normally
-            }
-            
+        gridContainer.addEventListener('touchmove', event => {
             event.preventDefault();
         });
 
-        gameContainer.addEventListener('touchend', event => {
+        gridContainer.addEventListener('touchend', event => {
             if (event.touches.length > 0) return;
-            
-            // Check if touch target is a button - don't prevent default for buttons
-            const target = event.changedTouches[0].target;
-            if (target.tagName === 'BUTTON' || target.closest('button')) {
-                return; // Let button handle the touch normally
-            }
-
-            // Check if touch is in game message area - don't trigger moves
-            if (target.closest('.game-message')) {
-                return; // Don't trigger game moves in game message area
-            }
 
             const touchEndClientX = event.changedTouches[0].clientX;
             const touchEndClientY = event.changedTouches[0].clientY;
