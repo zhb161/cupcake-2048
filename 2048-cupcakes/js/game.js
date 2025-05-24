@@ -588,10 +588,10 @@ class HTMLActuator {
 
     // Apply a position to a tile element
     applyPosition(element, position) {
-        // These constants should ideally be sourced from CSS or configuration
-        // if they were to change. For this project, they match the CSS.
-        const PADDING_PX = 15; // Corresponds to padding in .grid-tiles and .grid-background
-        const GAP_PX = 15;     // Corresponds to gap in .grid-background
+        // 动态获取padding和gap值，根据屏幕尺寸
+        const isMobile = window.innerWidth <= 600;
+        const PADDING_PX = isMobile ? 10 : 15; // 手机端10px，桌面端15px
+        const GAP_PX = isMobile ? 10 : 15;     // 手机端10px，桌面端15px
         const NUM_CELLS = 4;   // Grid size
 
         const tileContainer = this.tileContainer; // This is .grid-tiles element
@@ -615,14 +615,10 @@ class HTMLActuator {
         element.style.left = `${tileLeft}px`;
         element.style.top = `${tileTop}px`;
         
-        // The width and height of the tile are set by CSS: calc((100% - 75px) / 4).
+        // The width and height of the tile are set by CSS
+        // For mobile: calc((100% - 50px) / 4) where 50px = 2*10px + 3*10px
+        // For desktop: calc((100% - 75px) / 4) where 75px = 2*15px + 3*15px
         // This CSS calculation should already correctly size the tile to match cellWidth.
-        // 100% in that CSS refers to containerPaddingBoxWidth.
-        // So, tile_css_width = (containerPaddingBoxWidth - 75px) / 4.
-        // Our calculated cellWidth = (containerPaddingBoxWidth - 2*15px - 3*15px) / 4 
-        //                        = (containerPaddingBoxWidth - 30px - 45px) / 4 
-        //                        = (containerPaddingBoxWidth - 75px) / 4.
-        // They match, so no need to set width/height from JS here.
     }
 
     // Update the score display
