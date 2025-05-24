@@ -556,6 +556,12 @@ class HTMLActuator {
 
         element.classList.add('tile', `tile-${value}`);
 
+        // Add number overlay for Show Numbers feature
+        const numberElement = document.createElement('div');
+        numberElement.classList.add('tile-number');
+        numberElement.textContent = value;
+        element.appendChild(numberElement);
+
         let renderAtPrevious = false;
         if (tile.previousPosition && 
             (tile.previousPosition.x !== targetPosition.x || tile.previousPosition.y !== targetPosition.y)) {
@@ -928,12 +934,17 @@ class GameManager {
         const autoPlayButton = document.getElementById('auto-play-btn');
         autoPlayButton.addEventListener('click', this.toggleAutoPlay.bind(this));
 
+        const showNumbersButton = document.getElementById('show-numbers-btn');
+        showNumbersButton.addEventListener('click', this.toggleShowNumbers.bind(this));
+
         document.getElementById('ai-speed-slow').addEventListener('click', () => this.setAISpeed(this.SPEED_SLOW));
         document.getElementById('ai-speed-medium').addEventListener('click', () => this.setAISpeed(this.SPEED_MEDIUM));
         document.getElementById('ai-speed-fast').addEventListener('click', () => this.setAISpeed(this.SPEED_FAST));
         
         this.loadAISpeedPreference();
         this.updateSpeedButtonUI();
+
+        this.loadShowNumbersPreference();
 
         this.loadUnlockedCupcakes(); // Load gallery state
         this.scanGridAndUnlockRevealed(); // Initial scan
@@ -1051,6 +1062,23 @@ class GameManager {
         localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
     }
 
+    toggleShowNumbers() {
+        const gridContainer = document.querySelector('.grid-container');
+        const showNumbersButton = document.getElementById('show-numbers-btn');
+        
+        gridContainer.classList.toggle('show-numbers');
+        
+        if (gridContainer.classList.contains('show-numbers')) {
+            showNumbersButton.textContent = 'Hide Numbers';
+            showNumbersButton.classList.add('active');
+            localStorage.setItem('showNumbers', 'true');
+        } else {
+            showNumbersButton.textContent = 'Show Numbers';
+            showNumbersButton.classList.remove('active');
+            localStorage.setItem('showNumbers', 'false');
+        }
+    }
+
     setAISpeed(speed) {
         this.autoPlaySpeedSetting = speed;
         this.autoPlayDelay = speed;
@@ -1070,6 +1098,22 @@ class GameManager {
         if (savedSpeed) {
             this.autoPlaySpeedSetting = parseInt(savedSpeed, 10);
             this.autoPlayDelay = this.autoPlaySpeedSetting;
+        }
+    }
+
+    loadShowNumbersPreference() {
+        const showNumbers = localStorage.getItem('showNumbers');
+        const gridContainer = document.querySelector('.grid-container');
+        const showNumbersButton = document.getElementById('show-numbers-btn');
+        
+        if (showNumbers === 'true') {
+            gridContainer.classList.add('show-numbers');
+            showNumbersButton.textContent = 'Hide Numbers';
+            showNumbersButton.classList.add('active');
+        } else {
+            gridContainer.classList.remove('show-numbers');
+            showNumbersButton.textContent = 'Show Numbers';
+            showNumbersButton.classList.remove('active');
         }
     }
 

@@ -256,6 +256,39 @@ main {
 .tile-1024 { background-image: url('../img/1024-pink-champagne-cupcake.webp'); }
 .tile-2048 { background-image: url('../img/2048-christmas-cupcake.webp'); }
 
+/* Number overlay styles for Show Numbers feature */
+.tile-number {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 
+        2px 2px 0 #000000,
+        -2px -2px 0 #000000,
+        2px -2px 0 #000000,
+        -2px 2px 0 #000000,
+        1px 1px 2px rgba(0, 0, 0, 0.8);
+    z-index: 15;
+    pointer-events: none;
+    display: none;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Show numbers when enabled */
+.show-numbers .tile-number {
+    display: block;
+}
+
+/* Responsive number size */@media (max-width: 600px) {    .tile-number {        font-size: 12px;        width: 22px;        height: 22px;        line-height: 22px;        bottom: 2px;        right: 2px;        border-width: 1px;    }}
+
 .tile-merged {
     z-index: 20;
     animation: pop 0.3s ease 0.1s;
