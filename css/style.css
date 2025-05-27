@@ -63,7 +63,7 @@ header {
     flex-wrap: wrap;
     padding: 20px;
     background-color: var(--background-color);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     min-height: 80px;
     transition: background-color 0.3s ease;
     margin-bottom: 20px;
@@ -75,7 +75,35 @@ header {
     gap: 15px;
 }
 
-/* Theme Toggle Button */.theme-toggle-btn {    background: none;    border: none;    cursor: pointer;    padding: 10px;    border-radius: 50%;    width: 48px;    height: 48px;    display: flex;    align-items: center;    justify-content: center;    transition: all 0.3s ease;    background-color: var(--grid-cell-color);}.theme-toggle-btn:hover {    background-color: var(--accent-color);    transform: scale(1.1);}.theme-icon {    font-size: 1.4rem;    transition: transform 0.3s ease;}.theme-toggle-btn:hover .theme-icon {    transform: rotate(180deg);}
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    background-color: var(--grid-cell-color);
+}
+
+.theme-toggle-btn:hover {
+    background-color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.theme-icon {
+    font-size: 1.4rem;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover .theme-icon {
+    transform: rotate(180deg);
+}
 
 .logo h1 {
     color: var(--tertiary-color);
@@ -93,14 +121,24 @@ header {
     margin: 5px 0;
 }
 
-.score, .best-score {    background-color: var(--tertiary-color);    color: white;    padding: 8px 12px;    border-radius: 8px;    text-align: center;    min-width: 85px;    transition: background-color 0.3s ease;}
+.score,
+.best-score {
+    background-color: var(--tertiary-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 85px;
+    transition: background-color 0.3s ease;
+}
 
 .score-title {
     font-size: 0.7rem;
     font-weight: 700;
 }
 
-#current-score, #best-score {
+#current-score,
+#best-score {
     font-size: 1.3rem;
     font-weight: 700;
 }
@@ -113,7 +151,22 @@ header {
     margin-top: 5px;
 }
 
-.main-nav button,.ai-speed-controls button {    background-color: var(--accent-color);    color: white;    border: none;    padding: 12px 18px;    margin: 6px;    border-radius: 25px;    cursor: pointer;    font-family: var(--font-family);    font-weight: 600;    font-size: 0.95rem;    transition: all 0.3s ease;    white-space: nowrap;    min-height: 44px;}
+.main-nav button,
+.ai-speed-controls button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    margin: 6px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-height: 44px;
+}
 
 .main-nav button:hover,
 .ai-speed-controls button:hover {
@@ -124,7 +177,7 @@ header {
 .main-nav button.active,
 .ai-speed-controls button.active {
     background-color: var(--tertiary-color);
-    box-shadow: 0 0 5px rgba(0,0,0,0.3) inset;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) inset;
     transform: translateY(0);
 }
 
@@ -231,17 +284,49 @@ main {
     transition: left 0.1s ease-out, top 0.1s ease-out, transform 0.2s ease, opacity 0.2s ease;
 }
 
-.tile-2 { background-image: url('../img/2-vanilla-cupcake.webp'); }
-.tile-4 { background-image: url('../img/4-strawberry-vanilla-cupcake.webp'); }
-.tile-8 { background-image: url('../img/8-lemon-cupcake.webp'); }
-.tile-16 { background-image: url('../img/16-red-velvet-cupcake.webp'); }
-.tile-32 { background-image: url('../img/32-mint-cupcake.webp'); }
-.tile-64 { background-image: url('../img/64-jumbo-oreo-cupcake.webp'); }
-.tile-128 { background-image: url('../img/128-birthday-cupcake.webp'); }
-.tile-256 { background-image: url('../img/256-royal-blue-cupcake.webp'); }
-.tile-512 { background-image: url('../img/512-caramel-cupcake.webp'); }
-.tile-1024 { background-image: url('../img/1024-pink-champagne-cupcake.webp'); }
-.tile-2048 { background-image: url('../img/2048-christmas-cupcake.webp'); }
+.tile-2 {
+    background-image: url('../img/2-vanilla-cupcake.webp');
+}
+
+.tile-4 {
+    background-image: url('../img/4-strawberry-vanilla-cupcake.webp');
+}
+
+.tile-8 {
+    background-image: url('../img/8-lemon-cupcake.webp');
+}
+
+.tile-16 {
+    background-image: url('../img/16-red-velvet-cupcake.webp');
+}
+
+.tile-32 {
+    background-image: url('../img/32-mint-cupcake.webp');
+}
+
+.tile-64 {
+    background-image: url('../img/64-jumbo-oreo-cupcake.webp');
+}
+
+.tile-128 {
+    background-image: url('../img/128-birthday-cupcake.webp');
+}
+
+.tile-256 {
+    background-image: url('../img/256-royal-blue-cupcake.webp');
+}
+
+.tile-512 {
+    background-image: url('../img/512-caramel-cupcake.webp');
+}
+
+.tile-1024 {
+    background-image: url('../img/1024-pink-champagne-cupcake.webp');
+}
+
+.tile-2048 {
+    background-image: url('../img/2048-christmas-cupcake.webp');
+}
 
 /* Number overlay styles for Show Numbers feature */
 .tile-number {
@@ -251,7 +336,7 @@ main {
     font-size: 16px;
     font-weight: bold;
     color: #ffffff;
-    text-shadow: 
+    text-shadow:
         2px 2px 0 #000000,
         -2px -2px 0 #000000,
         2px -2px 0 #000000,
@@ -274,7 +359,18 @@ main {
     display: block;
 }
 
-/* Responsive number size */@media (max-width: 600px) {    .tile-number {        font-size: 12px;        width: 22px;        height: 22px;        line-height: 22px;        bottom: 2px;        right: 2px;        border-width: 1px;    }}
+/* Responsive number size */
+@media (max-width: 600px) {
+    .tile-number {
+        font-size: 12px;
+        width: 22px;
+        height: 22px;
+        line-height: 22px;
+        bottom: 2px;
+        right: 2px;
+        border-width: 1px;
+    }
+}
 
 .tile-merged {
     z-index: 20;
@@ -288,14 +384,29 @@ main {
 }
 
 @keyframes appear {
-    0% { opacity: 0; transform: scale(0); }
-    100% { opacity: 1; transform: scale(1); }
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @keyframes pop {
-    0% { transform: scale(0.8); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(0.8);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .game-message {
@@ -512,13 +623,14 @@ main {
 }
 
 @keyframes brandFadeIn {
-    0% { 
-        opacity: 0; 
-        transform: translateY(10px); 
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
     }
-    100% { 
-        opacity: 1; 
-        transform: translateY(0); 
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -614,107 +726,120 @@ main {
 
 /* 动画定义 */
 @keyframes resultSlideIn {
-    0% { 
-        opacity: 0; 
-        transform: translateY(50px) scale(0.9); 
+    0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
     }
-    100% { 
-        opacity: 1; 
-        transform: translateY(0) scale(1); 
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
 @keyframes resultCupcakeAppear {
-    0% { 
-        opacity: 0; 
-        transform: scale(0); 
+    0% {
+        opacity: 0;
+        transform: scale(0);
     }
-    60% { 
-        transform: scale(1.2); 
+
+    60% {
+        transform: scale(1.2);
     }
-    100% { 
-        opacity: 1; 
-        transform: scale(1); 
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
 @keyframes resultCupcakeWin {
-    0% { 
-        opacity: 0; 
-        transform: scale(0) rotate(-180deg); 
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
     }
-    60% { 
-        transform: scale(1.3) rotate(10deg); 
+
+    60% {
+        transform: scale(1.3) rotate(10deg);
     }
-    100% { 
-        opacity: 1; 
-        transform: scale(1) rotate(0deg); 
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
     }
 }
 
 @keyframes glowPulse {
-    0%, 100% { 
-        opacity: 0.5; 
-        transform: scale(1); 
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
     }
-    50% { 
-        opacity: 0.8; 
-        transform: scale(1.1); 
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
     }
 }
 
 @keyframes confettiFall {
-    0% { 
-        opacity: 1; 
-        transform: translateX(-50%) translateY(-20px) rotate(0deg); 
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-20px) rotate(0deg);
     }
-    100% { 
-        opacity: 0; 
-        transform: translateX(-50%) translateY(100px) rotate(360deg); 
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px) rotate(360deg);
     }
 }
 
 @keyframes titleFadeIn {
-    0% { 
-        opacity: 0; 
-        transform: translateY(20px); 
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    100% { 
-        opacity: 1; 
-        transform: translateY(0); 
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
 @keyframes statsSlideIn {
-    0% { 
-        opacity: 0; 
-        transform: translateX(-30px); 
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
     }
-    100% { 
-        opacity: 1; 
-        transform: translateX(0); 
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
 @keyframes detailsSlideIn {
-    0% { 
-        opacity: 0; 
-        transform: translateY(20px); 
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    100% { 
-        opacity: 1; 
-        transform: translateY(0); 
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
 @keyframes buttonsSlideIn {
-    0% { 
-        opacity: 0; 
-        transform: translateY(30px); 
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
     }
-    100% { 
-        opacity: 1; 
-        transform: translateY(0); 
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -725,73 +850,76 @@ main {
         margin: 5px;
         position: relative;
         z-index: 35;
-        max-height: 85vh; /* 限制最大高度为视口的85% */
-        overflow-y: auto; /* 允许垂直滚动 */
-        -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+        max-height: 85vh;
+        /* 限制最大高度为视口的85% */
+        overflow-y: auto;
+        /* 允许垂直滚动 */
+        -webkit-overflow-scrolling: touch;
+        /* iOS平滑滚动 */
     }
-    
+
     .result-cupcake img {
         width: 50px;
         height: 50px;
     }
-    
+
     #result-title {
         font-size: 1.3rem;
         margin: 8px 0;
     }
-    
+
     .result-header {
         margin-bottom: 15px;
     }
-    
+
     .result-stats {
         margin: 15px 0;
     }
-    
+
     .main-stat {
         font-size: 0.85rem;
         padding: 6px 10px;
         margin: 8px 0;
     }
-    
+
     .detail-grid {
         grid-template-columns: 1fr;
         gap: 6px;
     }
-    
+
     .detail-item {
         padding: 8px;
     }
-    
+
     .detail-label {
         font-size: 0.7rem;
     }
-    
+
     .detail-value {
         font-size: 0.85rem;
     }
-    
+
     .result-details {
         margin: 15px 0;
     }
-    
+
     .result-details h3 {
         font-size: 1rem;
         margin-bottom: 10px;
     }
-    
+
     /* 在手机端隐藏品牌信息以节省空间 */
     .result-brand {
         display: none;
     }
-    
+
     .game-message-buttons {
         gap: 8px;
         position: relative;
         z-index: 40;
         margin-top: 15px;
     }
-    
+
     .game-message-buttons button {
         padding: 12px 25px;
         font-size: 0.9rem;
@@ -802,11 +930,11 @@ main {
         -webkit-tap-highlight-color: transparent;
         cursor: pointer;
     }
-    
+
     .game-message-buttons button:active {
         transform: translateY(-1px) scale(0.98);
     }
-    
+
     /* 确保game-message本身也支持滚动 */
     .game-message {
         overflow-y: auto;
@@ -857,7 +985,7 @@ main {
     background-color: var(--background-color);
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .cupcake-gallery h2 {
@@ -903,13 +1031,17 @@ main {
 /* Cupcake Gallery Locked Item Styling */
 .cupcake-item.locked img {
     opacity: 0.15;
-    filter: grayscale(90%) blur(1px); /* Make it very faint, desaturated and slightly blurred */
-    transition: opacity 0.3s ease, filter 0.3s ease; /* Smooth transition when unlocked */
+    filter: grayscale(90%) blur(1px);
+    /* Make it very faint, desaturated and slightly blurred */
+    transition: opacity 0.3s ease, filter 0.3s ease;
+    /* Smooth transition when unlocked */
 }
 
 .cupcake-item.locked p {
-    color: var(--grid-cell-color); /* Make the number very faint, like an empty cell background */
-    font-weight: normal; /* Less prominent */
+    color: var(--grid-cell-color);
+    /* Make the number very faint, like an empty cell background */
+    font-weight: normal;
+    /* Less prominent */
 }
 
 /* Optional: Style for when an item is newly unlocked (can be timed with JS) */
@@ -918,9 +1050,22 @@ main {
 }
 
 @keyframes flashUnlock {
-    0% { transform: scale(1); box-shadow: 0 0 0px var(--accent-color); }
-    30% { transform: scale(1.05); box-shadow: 0 0 10px 3px var(--accent-color); }
-    100% { transform: scale(1); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); } /* Return to normal shadow */
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0px var(--accent-color);
+    }
+
+    30% {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px 3px var(--accent-color);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Return to normal shadow */
 }
 
 /* SEO Content Section - Adjust if needed after gallery removal */
@@ -957,8 +1102,7 @@ main {
 }
 
 .how-to-play li,
-.tips-strategies li {
-}
+.tips-strategies li {}
 
 .dark-theme .cupcake-item img {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
@@ -980,9 +1124,11 @@ footer {
         gap: 15px;
         padding: 15px;
     }
+
     .grid-tiles {
         padding: 15px;
     }
+
     .tile {
         width: calc((100% - 75px) / 4);
         height: calc((100% - 75px) / 4);
@@ -996,31 +1142,38 @@ footer {
         justify-content: center;
         padding: 15px 30px;
     }
+
     .container {
         padding: 0 30px;
     }
+
     .logo {
         width: 100%;
         text-align: center;
         margin-bottom: 10px;
     }
+
     .scores-container {
         order: 3;
         width: 100%;
         justify-content: center;
-        margin-top:10px;
+        margin-top: 10px;
     }
+
     .main-nav {
         order: 2;
         width: 100%;
         text-align: center;
     }
+
     main {
         grid-template-columns: 1fr;
     }
+
     .seo-content {
         grid-template-columns: 1fr;
     }
+
     .cupcake-item {
         width: calc(33.333% - 10px);
     }
@@ -1033,50 +1186,73 @@ footer {
         padding: 10px 15px;
         justify-content: center;
     }
+
     .container {
         padding: 0 15px;
     }
+
     .logo {
         width: 100%;
         text-align: center;
         margin-bottom: 10px;
     }
+
     .scores-container {
         order: 2;
         width: 100%;
         justify-content: center;
         margin-bottom: 10px;
     }
+
     .main-nav {
         order: 3;
         width: 100%;
         text-align: center;
     }
-    
+
     .logo h1 {
         font-size: 1.7rem;
     }
-    
-        .main-nav button {        margin: 4px 3px;        padding: 10px 14px;        font-size: 0.85rem;        white-space: nowrap;        min-height: 40px;    }        .ai-speed-controls button {        margin: 4px 3px;        padding: 8px 12px;        font-size: 0.75rem;        min-height: 36px;    }
-    
+
+    .main-nav button {
+        margin: 4px 3px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        min-height: 40px;
+    }
+
+    .ai-speed-controls button {
+        margin: 4px 3px;
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        min-height: 36px;
+    }
+
     .game-intro {
         margin-bottom: 10px;
     }
-    
+
     .cupcake-item {
         width: calc(50% - 7.5px);
     }
+
     .cupcake-list {
         grid-template-columns: repeat(3, 1fr);
         gap: 8px;
     }
+
     .cupcake-item p {
         font-size: 0.7rem;
     }
-    .personal-best h2, .cupcake-gallery h2 {
+
+    .personal-best h2,
+    .cupcake-gallery h2 {
         font-size: 1.1rem;
     }
-    .record-item, .cupcake-gallery p:first-of-type {
+
+    .record-item,
+    .cupcake-gallery p:first-of-type {
         font-size: 0.8rem;
     }
 }
@@ -1211,22 +1387,23 @@ footer p:last-child {
 
 /* Mobile Responsive Updates for New Elements */
 @media (max-width: 900px) {
+
     /* Hide game recommendations on mobile to save space */
     .game-container .other-games {
         display: none;
     }
-    
+
     .game-rec-icon {
         width: 35px;
         height: 35px;
         font-size: 1.3rem;
         margin-right: 10px;
     }
-    
+
     .game-rec-info h3 {
         font-size: 0.85rem;
     }
-    
+
     .game-rec-info p {
         font-size: 0.7rem;
     }
@@ -1237,21 +1414,27 @@ footer p:last-child {
         font-size: 0.8rem;
         line-height: 1.4;
     }
-    
+
     .cupcake-item {
         width: calc(50% - 7.5px);
     }
+
     .cupcake-list {
         grid-template-columns: repeat(3, 1fr);
         gap: 8px;
     }
+
     .cupcake-item p {
         font-size: 0.7rem;
     }
-    .personal-best h2, .cupcake-gallery h2 {
+
+    .personal-best h2,
+    .cupcake-gallery h2 {
         font-size: 1.1rem;
     }
-    .record-item, .cupcake-gallery p:first-of-type {
+
+    .record-item,
+    .cupcake-gallery p:first-of-type {
         font-size: 0.8rem;
     }
 }

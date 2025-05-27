@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Play 2048 Cupcakes, a sweet puzzle game! Combine adorable cupcakes to reach the 2048 tile. Enjoy stunning visuals and AI auto-play for a relaxing experience.">
+    <meta name="description"
+        content="Play 2048 Cupcakes, a sweet puzzle game! Combine adorable cupcakes to reach the 2048 tile. Enjoy stunning visuals and AI auto-play for a relaxing experience.">
     <meta name="keywords" content="2048 cupcakes">
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     <title>2048 cupcakes - Sweet Puzzle Game</title>
@@ -11,17 +13,40 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V961EXT3HL"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-      gtag('config', 'G-V961EXT3HL');
+        gtag('config', 'G-V961EXT3HL');
     </script>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="container">
-        <header>            <div class="logo">                <h1>2048 Cupcakes</h1>            </div>            <div class="header-right">                <div class="scores-container">                    <div class="score">                        <div class="score-title">SCORE</div>                        <div id="current-score">0</div>                    </div>                    <div class="best-score">                        <div class="score-title">BEST</div>                        <div id="best-score">0</div>                    </div>                </div>                <button id="theme-toggle" class="theme-toggle-btn" title="切换主题">                    <span class="theme-icon">🌙</span>                </button>            </div>            <nav class="main-nav">                <button id="new-game-btn">New Game</button>                <button id="auto-play-btn">AI Auto Play</button>                <button id="show-numbers-btn">Show Numbers</button>                <div class="ai-speed-controls">                    <span>AI Speed:</span>                    <button id="ai-speed-slow">Slow</button>                    <button id="ai-speed-medium">Medium</button>                    <button id="ai-speed-fast">Fast</button>                </div>            </nav>        </header>
+        <header>
+            <div class="logo">
+                <h1>2048 Cupcakes</h1>
+            </div>
+            <div class="header-right">
+                <div class="scores-container">
+                    <div class="score">
+                        <div class="score-title">SCORE</div>
+                        <div id="current-score">0</div>
+                    </div>
+                    <div class="best-score">
+                        <div class="score-title">BEST</div>
+                        <div id="best-score">0</div>
+                    </div>
+                </div> <button id="theme-toggle" class="theme-toggle-btn" title="切换主题"> <span
+                        class="theme-icon">🌙</span> </button>
+            </div>
+            <nav class="main-nav"> <button id="new-game-btn">New Game</button> <button id="auto-play-btn">AI Auto
+                    Play</button> <button id="show-numbers-btn">Show Numbers</button>
+                <div class="ai-speed-controls"> <span>AI Speed:</span> <button id="ai-speed-slow">Slow</button> <button
+                        id="ai-speed-medium">Medium</button> <button id="ai-speed-fast">Fast</button> </div>
+            </nav>
+        </header>
 
         <main>
             <section class="game-container">
@@ -61,7 +86,7 @@
                             <h2 id="result-title">Amazing Work!</h2>
                             <div class="result-confetti"></div>
                         </div>
-                        
+
                         <div class="result-stats">
                             <div class="main-stat">
                                 <span class="stat-icon">🎯</span>
@@ -76,7 +101,7 @@
                                 <span id="result-rank-text">Beat 15% of global bakers!</span>
                             </div>
                         </div>
-                        
+
                         <div class="result-details">
                             <h3>Baking Results</h3>
                             <div class="detail-grid">
@@ -110,13 +135,13 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="result-brand">
                             <div class="brand-line"></div>
                             <span class="brand-text">2048s.fun</span>
                             <div class="brand-line"></div>
                         </div>
-                        
+
                         <div class="game-message-buttons">
                             <button id="retry-button">
                                 <span class="btn-icon">🔄</span>
@@ -203,8 +228,10 @@
         <section class="seo-content">
             <div class="game-info">
                 <h2>About 2048 cupcakes</h2>
-                <p>2048 cupcakes is a delicious twist on the classic 2048 puzzle game. Instead of numbers, you'll be combining adorable cupcakes to create even more magnificent treats!</p>
-                <p>Each cupcake represents a number in the original 2048 game. Combine two identical cupcakes to create the next level of sweet treat. Can you create the ultimate 2048 Christmas cupcake?</p>
+                <p>2048 cupcakes is a delicious twist on the classic 2048 puzzle game. Instead of numbers, you'll be
+                    combining adorable cupcakes to create even more magnificent treats!</p>
+                <p>Each cupcake represents a number in the original 2048 game. Combine two identical cupcakes to create
+                    the next level of sweet treat. Can you create the ultimate 2048 Christmas cupcake?</p>
             </div>
 
             <div class="how-to-play">
@@ -212,7 +239,8 @@
                 <ul>
                     <li>Use your arrow keys or swipe to move all cupcakes in one direction</li>
                     <li>When two identical cupcakes touch, they merge into the next level cupcake</li>
-                    <li>Start with simple vanilla cupcakes and work your way up to the magnificent Christmas cupcake</li>
+                    <li>Start with simple vanilla cupcakes and work your way up to the magnificent Christmas cupcake
+                    </li>
                     <li>Try to reach the 2048 cupcake with as few moves as possible</li>
                 </ul>
             </div>
@@ -236,4 +264,5 @@
 
     <script src="js/game.js"></script>
 </body>
-</html> 
+
+</html>

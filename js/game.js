@@ -300,13 +300,13 @@ class Game {
                 const tile = grid.cellContent(cell);
                 if (tile) {
                     // Use a context for findFarthestPosition that matches what Game.move uses
-                    const contextForFindFarthest = { 
-                            grid: grid, 
-                            withinBounds: grid.withinBounds.bind(grid),
-                            cellAvailable: grid.cellAvailable.bind(grid)
-                        };
+                    const contextForFindFarthest = {
+                        grid: grid,
+                        withinBounds: grid.withinBounds.bind(grid),
+                        cellAvailable: grid.cellAvailable.bind(grid)
+                    };
                     const positions = this.findFarthestPosition.call(contextForFindFarthest, cell, vector);
-                    
+
                     // Check if tile can move to a new empty spot
                     if (positions.farthest.x !== cell.x || positions.farthest.y !== cell.y) {
                         moved = true;
@@ -323,7 +323,7 @@ class Game {
                 }
             });
         });
-        return { grid, moved }; 
+        return { grid, moved };
     }
 }
 
@@ -417,7 +417,7 @@ class Grid {
     // Check if a position is within bounds
     withinBounds(position) {
         return position.x >= 0 && position.x < this.size &&
-               position.y >= 0 && position.y < this.size;
+            position.y >= 0 && position.y < this.size;
     }
 
     // Clone the grid
@@ -462,7 +462,7 @@ class HTMLActuator {
         this.score = 0;
         this.grid = null; // 用于存储grid引用
         this.gameInstance = null; // 用于存储Game实例引用
-        
+
         // 添加新按钮的事件监听器
         this.bindButtons();
     }
@@ -471,23 +471,23 @@ class HTMLActuator {
     bindButtons() {
         // 绑定结算界面的Try Again按钮
         document.addEventListener('click', (event) => {
-            if (event.target.classList.contains('game-message-buttons') || 
+            if (event.target.classList.contains('game-message-buttons') ||
                 event.target.closest('.game-message-buttons')) {
                 // 找到具体的按钮
-                const button = event.target.tagName === 'BUTTON' ? 
-                              event.target : 
-                              event.target.closest('button');
-                
+                const button = event.target.tagName === 'BUTTON' ?
+                    event.target :
+                    event.target.closest('button');
+
                 if (button && button.textContent.includes('Try Again')) {
                     // 触发重新开始游戏
                     const restartEvent = new CustomEvent('restart');
                     document.dispatchEvent(restartEvent);
-                    
+
                     // 直接调用游戏管理器的重启方法
                     if (window.gameManager) {
                         window.gameManager.restart();
                     }
-                    
+
                     // 清除消息界面
                     this.clearMessage();
                 }
@@ -517,7 +517,7 @@ class HTMLActuator {
     actuate(grid, metadata) {
         // 存储grid引用
         this.grid = grid;
-        
+
         window.requestAnimationFrame(() => {
             this.clearContainer(this.tileContainer);
 
@@ -563,7 +563,7 @@ class HTMLActuator {
         element.appendChild(numberElement);
 
         let renderAtPrevious = false;
-        if (tile.previousPosition && 
+        if (tile.previousPosition &&
             (tile.previousPosition.x !== targetPosition.x || tile.previousPosition.y !== targetPosition.y)) {
             // This tile has moved from a different grid cell
             renderAtPrevious = true;
@@ -586,7 +586,7 @@ class HTMLActuator {
         // Handle animations for new tiles and merged tiles (pop/appear)
         if (tile.mergedFrom) { // This is the *resulting* tile of a merge
             element.classList.add('tile-merged'); // Pop animation
-        } else if (!tile.previousPosition && !tile.mergedFrom) { 
+        } else if (!tile.previousPosition && !tile.mergedFrom) {
             // A brand new tile (not from merge, no previous logical grid position)
             element.classList.add('tile-new'); // Appear animation
         }
@@ -601,7 +601,7 @@ class HTMLActuator {
         const NUM_CELLS = 4;   // Grid size
 
         const tileContainer = this.tileContainer; // This is .grid-tiles element
-        
+
         // Get the full width of the .grid-tiles container (padding-box width)
         const containerPaddingBoxWidth = tileContainer.offsetWidth;
 
@@ -612,15 +612,15 @@ class HTMLActuator {
         // Note: .grid-tiles itself also has PADDING_PX on each side.
         const contentWidthForCells = containerPaddingBoxWidth - (2 * PADDING_PX);
         const cellWidth = (contentWidthForCells - (NUM_CELLS - 1) * GAP_PX) / NUM_CELLS;
-        
+
         // Calculate top-left for the tile in pixels, relative to .grid-tiles's border.
         // Since .grid-tiles has PADDING_PX, the first tile (index 0) starts at PADDING_PX from the border.
         const tileLeft = PADDING_PX + position.x * (cellWidth + GAP_PX);
-        const tileTop  = PADDING_PX + position.y * (cellWidth + GAP_PX);
+        const tileTop = PADDING_PX + position.y * (cellWidth + GAP_PX);
 
         element.style.left = `${tileLeft}px`;
         element.style.top = `${tileTop}px`;
-        
+
         // The width and height of the tile are set by CSS
         // For mobile: calc((100% - 50px) / 4) where 50px = 2*10px + 3*10px
         // For desktop: calc((100% - 75px) / 4) where 75px = 2*15px + 3*15px
@@ -636,10 +636,10 @@ class HTMLActuator {
     // Display a game message
     message(won) {
         const type = won ? 'game-won' : 'game-over';
-        
+
         // 新的结算界面逻辑
         this.showResultScreen(won);
-        
+
         this.messageContainer.classList.add('active', type);
     }
 
@@ -647,7 +647,7 @@ class HTMLActuator {
     showResultScreen(won) {
         // 获取游戏统计数据
         const gameStats = this.calculateGameStats();
-        
+
         // 更新结算界面内容
         this.updateResultContent(won, gameStats);
     }
@@ -657,7 +657,7 @@ class HTMLActuator {
         // 找到最高瓦片
         let maxTileValue = 2;
         const grid = this.grid;
-        
+
         if (grid && grid.cells) {
             grid.cells.forEach(column => {
                 column.forEach(cell => {
@@ -670,16 +670,16 @@ class HTMLActuator {
 
         // 计算移动次数（从Game实例获取真实数据）
         const moves = this.getMoveCount();
-        
+
         // 计算游戏时间（从Game实例获取真实数据）
         const gameTime = this.getGameTime();
-        
+
         // 计算效率指数
         const efficiency = this.calculateEfficiency(maxTileValue, moves);
-        
+
         // 计算超越百分比
         const rankPercentage = this.calculateRankPercentage(maxTileValue);
-        
+
         return {
             maxTile: maxTileValue,
             moves: moves,
@@ -698,7 +698,7 @@ class HTMLActuator {
     // 获取游戏时间（从Game实例获取真实数据）
     getGameTime() {
         if (!this.gameInstance) return '0:00';
-        
+
         const gameTimeMs = Date.now() - this.gameInstance.gameStartTime;
         const minutes = Math.floor(gameTimeMs / 60000);
         const seconds = Math.floor((gameTimeMs % 60000) / 1000);
@@ -708,7 +708,7 @@ class HTMLActuator {
     // 计算效率指数
     calculateEfficiency(maxTile, moves) {
         const efficiencyScore = (Math.log2(maxTile) * 100) / moves;
-        
+
         if (efficiencyScore >= 0.8) return 'S';
         if (efficiencyScore >= 0.6) return 'A';
         if (efficiencyScore >= 0.4) return 'B';
@@ -755,13 +755,13 @@ class HTMLActuator {
         resultTitle.textContent = this.getResultTitle(won, stats.maxTile);
 
         // 更新主要统计信息 - 改为英文
-        document.getElementById('result-score-text').textContent = 
+        document.getElementById('result-score-text').textContent =
             `You scored ${stats.score.toLocaleString()} points!`;
-        
-        document.getElementById('result-cupcake-text').textContent = 
+
+        document.getElementById('result-cupcake-text').textContent =
             `Successfully baked ${stats.maxTile}-${this.getCupcakeName(stats.maxTile)}!`;
-        
-        document.getElementById('result-rank-text').textContent = 
+
+        document.getElementById('result-rank-text').textContent =
             `Beat ${stats.rankPercentage}% of global bakers!`;
 
         // 更新详细统计
@@ -843,7 +843,7 @@ class KeyboardInputManager {
 
         gridContainer.addEventListener('touchstart', event => {
             if (event.touches.length > 1) return;
-            
+
             touchStartClientX = event.touches[0].clientX;
             touchStartClientY = event.touches[0].clientY;
             event.preventDefault();
@@ -940,12 +940,12 @@ class GameManager {
         document.getElementById('ai-speed-slow').addEventListener('click', () => this.setAISpeed(this.SPEED_SLOW));
         document.getElementById('ai-speed-medium').addEventListener('click', () => this.setAISpeed(this.SPEED_MEDIUM));
         document.getElementById('ai-speed-fast').addEventListener('click', () => this.setAISpeed(this.SPEED_FAST));
-        
-                this.loadAISpeedPreference();        this.updateSpeedButtonUI();        this.loadShowNumbersPreference();        this.loadThemePreference();        this.loadUnlockedCupcakes(); // Load gallery state        this.scanGridAndUnlockRevealed(); // Initial scan        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
+
+        this.loadAISpeedPreference(); this.updateSpeedButtonUI(); this.loadShowNumbersPreference(); this.loadThemePreference(); this.loadUnlockedCupcakes(); // Load gallery state        this.scanGridAndUnlockRevealed(); // Initial scan        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
     }
 
     // Renamed from move to onUserMove to avoid clash with Game.move if Game instance needs to call a GM.move
-    onUserMove(direction) { 
+    onUserMove(direction) {
         if (this.isAutoPlaying && direction !== undefined) return;
         this.game.move(direction);
         this.scanGridAndUnlockRevealed(); // Scan after player move
@@ -982,7 +982,7 @@ class GameManager {
 
     startAutoPlay() {
         if (this.game.over || (this.game.won && !this.game.keepPlaying)) {
-            this.isAutoPlaying = false; 
+            this.isAutoPlaying = false;
             const autoPlayButton = document.getElementById('auto-play-btn');
             autoPlayButton.textContent = 'Auto Play';
             autoPlayButton.classList.remove('active');
@@ -997,7 +997,7 @@ class GameManager {
         clearInterval(this.autoPlayIntervalId);
         this.autoPlayIntervalId = null;
         const wasPlaying = this.isAutoPlaying;
-        this.isAutoPlaying = false; 
+        this.isAutoPlaying = false;
 
         const autoPlayButton = document.getElementById('auto-play-btn');
         autoPlayButton.textContent = 'Auto Play';
@@ -1017,31 +1017,31 @@ class GameManager {
         }
 
         const bestMove = this.solver.nextMove();
-        
+
         if (bestMove !== undefined && bestMove !== -1 && bestMove !== null) {
             this.game.move(bestMove);
             this.scanGridAndUnlockRevealed(); // Scan after AI move
         } else {
             console.log("AI couldn't find a move. Attempting fallback.");
             let moved = false;
-            if (this.solver && this.solver.game) { 
-                 for (let i = 0; i < 4; i++) {
+            if (this.solver && this.solver.game) {
+                for (let i = 0; i < 4; i++) {
                     // Check if game has isMoveAvailable, if not, this needs to be adapted
                     // Assuming Game class has a method like isMovePossible(direction) or can simulate a move
                     // For now, we'll rely on the AI to make valid moves, or game.move to handle invalid ones gracefully
                     const tempGrid = this.game.grid.clone();
                     const sim = this.game._tryMoveOnGrid(tempGrid, i); // A hypothetical method in Game
-                    if (sim.moved) { 
-                         this.game.move(i);
-                         this.scanGridAndUnlockRevealed(); // Scan after AI fallback move
-                         moved = true;
-                         break;
+                    if (sim.moved) {
+                        this.game.move(i);
+                        this.scanGridAndUnlockRevealed(); // Scan after AI fallback move
+                        moved = true;
+                        break;
                     }
-                 }
+                }
             }
             if (!moved) {
-                console.log("Fallback failed. Stopping AI."); 
-                this.stopAutoPlay(); 
+                console.log("Fallback failed. Stopping AI.");
+                this.stopAutoPlay();
             }
         }
 
@@ -1056,14 +1056,14 @@ class GameManager {
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
         this.updateThemeIcon(isDark);
     }
-    
+
     updateThemeIcon(isDark) {
         const themeIcon = document.querySelector('.theme-icon');
         if (themeIcon) {
             themeIcon.textContent = isDark ? '☀️' : '🌙';
         }
     }
-    
+
     loadThemePreference() {
         const savedTheme = localStorage.getItem('theme');
         const isDark = savedTheme === 'dark';
@@ -1076,9 +1076,9 @@ class GameManager {
     toggleShowNumbers() {
         const gridContainer = document.querySelector('.grid-container');
         const showNumbersButton = document.getElementById('show-numbers-btn');
-        
+
         gridContainer.classList.toggle('show-numbers');
-        
+
         if (gridContainer.classList.contains('show-numbers')) {
             showNumbersButton.textContent = 'Hide Numbers';
             showNumbersButton.classList.add('active');
@@ -1116,7 +1116,7 @@ class GameManager {
         const showNumbers = localStorage.getItem('showNumbers');
         const gridContainer = document.querySelector('.grid-container');
         const showNumbersButton = document.getElementById('show-numbers-btn');
-        
+
         if (showNumbers === 'true') {
             gridContainer.classList.add('show-numbers');
             showNumbersButton.textContent = 'Hide Numbers';
@@ -1239,8 +1239,8 @@ class SmartAI {
                     // For findFarthestPosition, the context 'this' needs to be an object with a 'grid' property
                     // and any methods like getVector if findFarthestPosition itself calls them using 'this'
                     // The original Game.findFarthestPosition expects 'this.grid'.
-                    const contextForFindFarthest = { 
-                        grid: newGrid, 
+                    const contextForFindFarthest = {
+                        grid: newGrid,
                         // Provide other methods if findFarthestPosition or its callees from Game need them
                         withinBounds: newGrid.withinBounds.bind(newGrid), // Grid method
                         cellAvailable: newGrid.cellAvailable.bind(newGrid) // Grid method
@@ -1257,11 +1257,11 @@ class SmartAI {
                     } else {
                         // Simulate moving the tile on the newGrid
                         if (newGrid.cells[tile.x][tile.y] === tile) { // Ensure we are moving the correct tile instance
-                           if (tile.x !== positions.farthest.x || tile.y !== positions.farthest.y) {
+                            if (tile.x !== positions.farthest.x || tile.y !== positions.farthest.y) {
                                 newGrid.cells[tile.x][tile.y] = null;
                                 newGrid.cells[positions.farthest.x][positions.farthest.y] = tile;
                                 tile.updatePosition(positions.farthest); // Update tile's own record of position
-                            moved = true;
+                                moved = true;
                             }
                         }
                     }
@@ -1273,11 +1273,11 @@ class SmartAI {
 
     gridQuality(grid) {
         var monoScore = 0;
-        const traversals = this.game.buildTraversals({x: -1, y: 0});
+        const traversals = this.game.buildTraversals({ x: -1, y: 0 });
         var prevValue;
         var incScore, decScore;
 
-        var scoreCell = function(cell) {
+        var scoreCell = function (cell) {
             var tile = grid.cellContent(cell);
             var tileValue = (tile ? tile.value : 0);
             incScore += tileValue;
@@ -1289,7 +1289,7 @@ class SmartAI {
             }
             prevValue = tileValue;
         };
-        
+
         traversals.x.forEach(function (xIndex) {
             prevValue = -1; incScore = 0; decScore = 0;
             traversals.y.forEach(function (yIndex) {
@@ -1298,14 +1298,14 @@ class SmartAI {
             monoScore += Math.max(incScore, decScore);
         });
 
-        traversals.y.forEach(function (yIndex) { 
+        traversals.y.forEach(function (yIndex) {
             prevValue = -1; incScore = 0; decScore = 0;
             traversals.x.forEach(function (xIndex) {
                 scoreCell({ x: xIndex, y: yIndex });
             });
             monoScore += Math.max(incScore, decScore);
         });
-        
+
         var availableCells = grid.availableCells();
         var emptyCellWeight = 8;
         var emptyScore = availableCells.length * emptyCellWeight;
@@ -1319,12 +1319,12 @@ class SmartAI {
             if (!bestResult ||
                 results[i].qualityLoss < bestResult.qualityLoss ||
                 (results[i].qualityLoss === bestResult.qualityLoss && results[i].quality > bestResult.quality) ||
-                (results[i].qualityLoss === bestResult.qualityLoss && results[i].quality === bestResult.quality && (results[i].probability || 1) < (bestResult.probability || 1) )) {
+                (results[i].qualityLoss === bestResult.qualityLoss && results[i].quality === bestResult.quality && (results[i].probability || 1) < (bestResult.probability || 1))) {
                 bestResult = results[i];
             }
         }
         if (!bestResult) {
-             for(let dir = 0; dir < 4; dir++) {
+            for (let dir = 0; dir < 4; dir++) {
                 if (results[dir] !== null && results[dir].direction !== undefined) return results[dir]; // Ensure direction is valid
             }
             return { quality: -1, probability: 1, qualityLoss: originalQuality, direction: -1 }; // Fallback with -1 direction
@@ -1348,7 +1348,7 @@ class SmartAI {
                 result.quality = this.gridQuality(currentMovedGrid);
                 result.qualityLoss = Math.max(0, originalQuality - result.quality);
                 result.probability = 1;
-                    } else {
+            } else {
                 for (var i = 0; i < availableCells.length; i++) {
                     var cellPos = availableCells[i];
                     var hasAdjacentTileCurrentCell = false;
@@ -1359,18 +1359,18 @@ class SmartAI {
                             hasAdjacentTileCurrentCell = true; break;
                         }
                     }
-                    
+
                     let anyCellIsAdjacentOverall = false;
                     if (availableCells.length > 1) {
-                        for(const ac of availableCells) {
+                        for (const ac of availableCells) {
                             let currentACIsAdj = false;
-                            for(let d3=0; d3<4; d3++) {
+                            for (let d3 = 0; d3 < 4; d3++) {
                                 const vec = this.game.getVector(d3);
-                                if(currentMovedGrid.cellContent({x: ac.x + vec.x, y: ac.y + vec.y})) {
+                                if (currentMovedGrid.cellContent({ x: ac.x + vec.x, y: ac.y + vec.y })) {
                                     currentACIsAdj = true; break;
                                 }
                             }
-                            if(currentACIsAdj) { anyCellIsAdjacentOverall = true; break; }
+                            if (currentACIsAdj) { anyCellIsAdjacentOverall = true; break; }
                         }
                     }
                     if (anyCellIsAdjacentOverall && !hasAdjacentTileCurrentCell && availableCells.length > 1) continue;
@@ -1392,7 +1392,7 @@ class SmartAI {
                             qualityLoss: Math.max(0, originalQuality - tileQualityVal)
                         };
                     }
-                    
+
                     if (tileResult && tileResult.quality !== undefined) { // Check tileResult and its quality
                         if (result.quality === -1 || tileResult.quality < result.quality) {
                             result.quality = tileResult.quality;
@@ -1418,10 +1418,10 @@ class SmartAI {
                         var fbSubResults = this.planAhead(testGridFallback, numMoves - 1, originalQuality);
                         fbTileResult = this.chooseBestMove(fbSubResults, originalQuality);
                     } else {
-                         var fbTileQualityVal = this.gridQuality(testGridFallback);
-                         fbTileResult = { quality: fbTileQualityVal, probability: 1, qualityLoss: Math.max(0, originalQuality - fbTileQualityVal) };
+                        var fbTileQualityVal = this.gridQuality(testGridFallback);
+                        fbTileResult = { quality: fbTileQualityVal, probability: 1, qualityLoss: Math.max(0, originalQuality - fbTileQualityVal) };
                     }
-                     if (fbTileResult && fbTileResult.quality !== undefined) { 
+                    if (fbTileResult && fbTileResult.quality !== undefined) {
                         result.quality = fbTileResult.quality;
                         result.probability = fbTileResult.probability || 1;
                         result.qualityLoss = fbTileResult.qualityLoss || 0;
@@ -1436,12 +1436,12 @@ class SmartAI {
     nextMove() {
         if (!this.game || !this.game.grid) {
             console.error("SmartAI: Game or grid not available!");
-            return 0; 
+            return 0;
         }
         var originalQuality = this.gridQuality(this.game.grid);
-        var results = this.planAhead(this.game.grid, 3, originalQuality); 
+        var results = this.planAhead(this.game.grid, 3, originalQuality);
         var bestResult = this.chooseBestMove(results, originalQuality);
-        
+
         // Ensure a valid direction is returned, otherwise default (e.g. if bestResult.direction is -1)
         return (bestResult && bestResult.direction !== -1 && bestResult.direction !== undefined) ? bestResult.direction : 0;
     }
