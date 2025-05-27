@@ -20,6 +20,15 @@
         gtag('config', 'G-V961EXT3HL');
     </script>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#F8B195">
+    <meta property="og:title" content="2048 Cupcakes - Sweet Puzzle Game">
+    <meta property="og:description" content="Play 2048 Cupcakes, a sweet puzzle game! Combine adorable cupcakes to reach the 2048 tile.">
+    <meta property="og:image" content="https://2048-cupcakes.app/img/description.png">
+    <meta property="og:url" content="https://2048-cupcakes.app">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://2048-cupcakes.app/img/description.png">
 </head>
 
 <body>
@@ -263,6 +272,19 @@
     </div>
 
     <script src="js/game.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    </script>
 </body>
 
 </html>

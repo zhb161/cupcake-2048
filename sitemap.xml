@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- 主页 -->
+  <url>
+    <loc>https://2048-cupcakes.app/</loc>
+    <lastmod>2025-05-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    
+    <!-- 图片资源 - 帮助Google图片搜索索引 -->
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/2-vanilla-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Vanilla Cupcake</image:caption>
+      <image:title>Vanilla Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/4-strawberry-vanilla-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Strawberry Vanilla Cupcake</image:caption>
+      <image:title>Strawberry Vanilla Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/8-lemon-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Lemon Cupcake</image:caption>
+      <image:title>Lemon Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/16-red-velvet-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Red Velvet Cupcake</image:caption>
+      <image:title>Red Velvet Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/32-mint-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Mint Cupcake</image:caption>
+      <image:title>Mint Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/64-jumbo-oreo-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Jumbo Oreo Cupcake</image:caption>
+      <image:title>Jumbo Oreo Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/128-birthday-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Birthday Cupcake</image:caption>
+      <image:title>Birthday Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/256-royal-blue-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Royal Blue Cupcake</image:caption>
+      <image:title>Royal Blue Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/512-caramel-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Caramel Cupcake</image:caption>
+      <image:title>Caramel Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/1024-pink-champagne-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Pink Champagne Cupcake</image:caption>
+      <image:title>Pink Champagne Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/2048-christmas-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Christmas Cupcake</image:caption>
+      <image:title>Christmas Cupcake - Ultimate Goal</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/favicon.svg</image:loc>
+      <image:caption>2048 Cupcakes Game Icon</image:caption>
+      <image:title>2048 Cupcakes</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/description.png</image:loc>
+      <image:caption>2048 Cupcakes - Sweet Puzzle Game Preview</image:caption>
+      <image:title>2048 Cupcakes Game Preview</image:title>
+    </image:image>
+  </url>
+  
+</urlset> 
