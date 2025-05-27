@@ -12,6 +12,8 @@ class Game {
         this.won = false;
         this.keepPlaying = false;
         this.actuator = actuator;
+        this.moveCount = 0; // 添加移动次数统计
+        this.gameStartTime = Date.now(); // 添加游戏开始时间
         this.setup();
     }
 
@@ -162,6 +164,7 @@ class Game {
 
         if (moved) {
             this.addRandomTile();
+            this.moveCount++; // 增加移动次数
 
             if (!this.movesAvailable()) {
                 this.over = true; // Game over!
@@ -275,6 +278,8 @@ class Game {
         this.over = false;
         this.won = false;
         this.keepPlaying = false;
+        this.moveCount = 0; // 重置移动次数
+        this.gameStartTime = Date.now(); // 重置游戏开始时间
         this.setup();
     }
 
@@ -455,10 +460,64 @@ class HTMLActuator {
         this.tileContainer = document.querySelector('.grid-tiles');
         this.messageContainer = document.querySelector('.game-message');
         this.score = 0;
+        this.grid = null; // 用于存储grid引用
+        this.gameInstance = null; // 用于存储Game实例引用
+        
+        // 添加新按钮的事件监听器
+        this.bindButtons();
+    }
+
+    // 绑定按钮事件
+    bindButtons() {
+        // 绑定结算界面的Try Again按钮
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('game-message-buttons') || 
+                event.target.closest('.game-message-buttons')) {
+                // 找到具体的按钮
+                const button = event.target.tagName === 'BUTTON' ? 
+                              event.target : 
+                              event.target.closest('button');
+                
+                if (button && button.textContent.includes('Try Again')) {
+                    // 触发重新开始游戏
+                    const restartEvent = new CustomEvent('restart');
+                    document.dispatchEvent(restartEvent);
+                    
+                    // 直接调用游戏管理器的重启方法
+                    if (window.gameManager) {
+                        window.gameManager.restart();
+                    }
+                    
+                    // 清除消息界面
+                    this.clearMessage();
+                }
+            }
+        });
+    }
+
+    // 获取蛋糕名称 - 改为英文
+    getCupcakeName(value) {
+        const names = {
+            2: 'Vanilla Cupcake',
+            4: 'Strawberry Vanilla Cupcake',
+            8: 'Lemon Cupcake',
+            16: 'Red Velvet Cupcake',
+            32: 'Mint Cupcake',
+            64: 'Jumbo Oreo Cupcake',
+            128: 'Birthday Cupcake',
+            256: 'Royal Blue Cupcake',
+            512: 'Caramel Cupcake',
+            1024: 'Pink Champagne Cupcake',
+            2048: 'Christmas Cupcake'
+        };
+        return names[value] || 'Cupcake';
     }
 
     // Update the UI to represent the current game state
     actuate(grid, metadata) {
+        // 存储grid引用
+        this.grid = grid;
+        
         window.requestAnimationFrame(() => {
             this.clearContainer(this.tileContainer);
 
@@ -497,6 +556,12 @@ class HTMLActuator {
 
         element.classList.add('tile', `tile-${value}`);
 
+        // Add number overlay for Show Numbers feature
+        const numberElement = document.createElement('div');
+        numberElement.classList.add('tile-number');
+        numberElement.textContent = value;
+        element.appendChild(numberElement);
+
         let renderAtPrevious = false;
         if (tile.previousPosition && 
             (tile.previousPosition.x !== targetPosition.x || tile.previousPosition.y !== targetPosition.y)) {
@@ -529,10 +594,10 @@ class HTMLActuator {
 
     // Apply a position to a tile element
     applyPosition(element, position) {
-        // These constants should ideally be sourced from CSS or configuration
-        // if they were to change. For this project, they match the CSS.
-        const PADDING_PX = 15; // Corresponds to padding in .grid-tiles and .grid-background
-        const GAP_PX = 15;     // Corresponds to gap in .grid-background
+        // 动态获取padding和gap值，根据屏幕尺寸
+        const isMobile = window.innerWidth <= 600;
+        const PADDING_PX = isMobile ? 10 : 15; // 手机端10px，桌面端15px
+        const GAP_PX = isMobile ? 10 : 15;     // 手机端10px，桌面端15px
         const NUM_CELLS = 4;   // Grid size
 
         const tileContainer = this.tileContainer; // This is .grid-tiles element
@@ -556,14 +621,10 @@ class HTMLActuator {
         element.style.left = `${tileLeft}px`;
         element.style.top = `${tileTop}px`;
         
-        // The width and height of the tile are set by CSS: calc((100% - 75px) / 4).
+        // The width and height of the tile are set by CSS
+        // For mobile: calc((100% - 50px) / 4) where 50px = 2*10px + 3*10px
+        // For desktop: calc((100% - 75px) / 4) where 75px = 2*15px + 3*15px
         // This CSS calculation should already correctly size the tile to match cellWidth.
-        // 100% in that CSS refers to containerPaddingBoxWidth.
-        // So, tile_css_width = (containerPaddingBoxWidth - 75px) / 4.
-        // Our calculated cellWidth = (containerPaddingBoxWidth - 2*15px - 3*15px) / 4 
-        //                        = (containerPaddingBoxWidth - 30px - 45px) / 4 
-        //                        = (containerPaddingBoxWidth - 75px) / 4.
-        // They match, so no need to set width/height from JS here.
     }
 
     // Update the score display
@@ -575,11 +636,152 @@ class HTMLActuator {
     // Display a game message
     message(won) {
         const type = won ? 'game-won' : 'game-over';
-        const messageText = won ? 'You win!' : 'Game over!';
+        
+        // 新的结算界面逻辑
+        this.showResultScreen(won);
+        
+        this.messageContainer.classList.add('active', type);
+    }
 
-        // this.messageContainer.classList.add(type);
-        this.messageContainer.classList.add('active', type); // Use 'active' to control visibility
-        this.messageContainer.querySelector('p').textContent = messageText;
+    // 新的结算界面显示方法
+    showResultScreen(won) {
+        // 获取游戏统计数据
+        const gameStats = this.calculateGameStats();
+        
+        // 更新结算界面内容
+        this.updateResultContent(won, gameStats);
+    }
+
+    // 计算游戏统计数据
+    calculateGameStats() {
+        // 找到最高瓦片
+        let maxTileValue = 2;
+        const grid = this.grid;
+        
+        if (grid && grid.cells) {
+            grid.cells.forEach(column => {
+                column.forEach(cell => {
+                    if (cell && cell.value > maxTileValue) {
+                        maxTileValue = cell.value;
+                    }
+                });
+            });
+        }
+
+        // 计算移动次数（从Game实例获取真实数据）
+        const moves = this.getMoveCount();
+        
+        // 计算游戏时间（从Game实例获取真实数据）
+        const gameTime = this.getGameTime();
+        
+        // 计算效率指数
+        const efficiency = this.calculateEfficiency(maxTileValue, moves);
+        
+        // 计算超越百分比
+        const rankPercentage = this.calculateRankPercentage(maxTileValue);
+        
+        return {
+            maxTile: maxTileValue,
+            moves: moves,
+            gameTime: gameTime,
+            efficiency: efficiency,
+            rankPercentage: rankPercentage,
+            score: this.score
+        };
+    }
+
+    // 获取移动次数（从Game实例获取真实数据）
+    getMoveCount() {
+        return this.gameInstance ? this.gameInstance.moveCount : 0;
+    }
+
+    // 获取游戏时间（从Game实例获取真实数据）
+    getGameTime() {
+        if (!this.gameInstance) return '0:00';
+        
+        const gameTimeMs = Date.now() - this.gameInstance.gameStartTime;
+        const minutes = Math.floor(gameTimeMs / 60000);
+        const seconds = Math.floor((gameTimeMs % 60000) / 1000);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // 计算效率指数
+    calculateEfficiency(maxTile, moves) {
+        const efficiencyScore = (Math.log2(maxTile) * 100) / moves;
+        
+        if (efficiencyScore >= 0.8) return 'S';
+        if (efficiencyScore >= 0.6) return 'A';
+        if (efficiencyScore >= 0.4) return 'B';
+        if (efficiencyScore >= 0.2) return 'C';
+        return 'D';
+    }
+
+    // 计算超越百分比
+    calculateRankPercentage(maxTile) {
+        const percentageMap = {
+            2: 15, 4: 25, 8: 35, 16: 45, 32: 55, 64: 65,
+            128: 75, 256: 82, 512: 88, 1024: 93, 2048: 97, 4096: 99
+        };
+        return percentageMap[maxTile] || 15;
+    }
+
+    // 获取蛋糕图片名称
+    getCupcakeImageName(value) {
+        const imageNames = {
+            2: 'vanilla-cupcake',
+            4: 'strawberry-vanilla-cupcake',
+            8: 'lemon-cupcake',
+            16: 'red-velvet-cupcake',
+            32: 'mint-cupcake',
+            64: 'jumbo-oreo-cupcake',
+            128: 'birthday-cupcake',
+            256: 'royal-blue-cupcake',
+            512: 'caramel-cupcake',
+            1024: 'pink-champagne-cupcake',
+            2048: 'christmas-cupcake'
+        };
+        return imageNames[value] || 'vanilla-cupcake';
+    }
+
+    // 更新结算界面内容
+    updateResultContent(won, stats) {
+        // 更新主图片
+        const resultImg = document.getElementById('result-cupcake-img');
+        resultImg.src = `img/${stats.maxTile}-${this.getCupcakeImageName(stats.maxTile)}.webp`;
+        resultImg.alt = `${stats.maxTile} - ${this.getCupcakeName(stats.maxTile)}`;
+
+        // 更新标题
+        const resultTitle = document.getElementById('result-title');
+        resultTitle.textContent = this.getResultTitle(won, stats.maxTile);
+
+        // 更新主要统计信息 - 改为英文
+        document.getElementById('result-score-text').textContent = 
+            `You scored ${stats.score.toLocaleString()} points!`;
+        
+        document.getElementById('result-cupcake-text').textContent = 
+            `Successfully baked ${stats.maxTile}-${this.getCupcakeName(stats.maxTile)}!`;
+        
+        document.getElementById('result-rank-text').textContent = 
+            `Beat ${stats.rankPercentage}% of global bakers!`;
+
+        // 更新详细统计
+        document.getElementById('result-max-tile').textContent = stats.maxTile;
+        document.getElementById('result-moves').textContent = stats.moves;
+        document.getElementById('result-time').textContent = stats.gameTime;
+        document.getElementById('result-efficiency').textContent = stats.efficiency;
+    }
+
+    // 获取结果标题
+    getResultTitle(won, maxTile) {
+        if (won) {
+            if (maxTile >= 2048) return 'Master Baker! 🏆';
+            if (maxTile >= 1024) return 'Excellent Work! ⭐';
+            return 'Amazing Work! 🎉';
+        } else {
+            if (maxTile >= 512) return 'Almost There! 🌟';
+            if (maxTile >= 128) return 'Keep Going! 💪';
+            return 'Keep Baking! 🔥';
+        }
     }
 
     // Clear the game message
@@ -635,22 +837,23 @@ class KeyboardInputManager {
         document.getElementById('retry-button').addEventListener('click', this.restart.bind(this));
         document.getElementById('new-game-btn').addEventListener('click', this.restart.bind(this));
 
-        // Respond to swipe events
+        // Respond to swipe events - Only in the grid area
         let touchStartClientX, touchStartClientY;
-        const gameContainer = document.querySelector('.game-container');
+        const gridContainer = document.querySelector('.grid-container');
 
-        gameContainer.addEventListener('touchstart', event => {
+        gridContainer.addEventListener('touchstart', event => {
             if (event.touches.length > 1) return;
+            
             touchStartClientX = event.touches[0].clientX;
             touchStartClientY = event.touches[0].clientY;
             event.preventDefault();
         });
 
-        gameContainer.addEventListener('touchmove', event => {
+        gridContainer.addEventListener('touchmove', event => {
             event.preventDefault();
         });
 
-        gameContainer.addEventListener('touchend', event => {
+        gridContainer.addEventListener('touchend', event => {
             if (event.touches.length > 0) return;
 
             const touchEndClientX = event.changedTouches[0].clientX;
@@ -707,6 +910,7 @@ class GameManager {
         this.inputManager = new KeyboardInputManager();
         this.actuator = new HTMLActuator();
         this.game = new Game(this.actuator);
+        this.actuator.gameInstance = this.game; // 传递Game实例引用给actuator
         this.solver = new SmartAI(this.game);
 
         this.isAutoPlaying = false;
@@ -730,16 +934,14 @@ class GameManager {
         const autoPlayButton = document.getElementById('auto-play-btn');
         autoPlayButton.addEventListener('click', this.toggleAutoPlay.bind(this));
 
+        const showNumbersButton = document.getElementById('show-numbers-btn');
+        showNumbersButton.addEventListener('click', this.toggleShowNumbers.bind(this));
+
         document.getElementById('ai-speed-slow').addEventListener('click', () => this.setAISpeed(this.SPEED_SLOW));
         document.getElementById('ai-speed-medium').addEventListener('click', () => this.setAISpeed(this.SPEED_MEDIUM));
         document.getElementById('ai-speed-fast').addEventListener('click', () => this.setAISpeed(this.SPEED_FAST));
         
-        this.loadAISpeedPreference();
-        this.updateSpeedButtonUI();
-
-        this.loadUnlockedCupcakes(); // Load gallery state
-        this.scanGridAndUnlockRevealed(); // Initial scan
-        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
+                this.loadAISpeedPreference();        this.updateSpeedButtonUI();        this.loadShowNumbersPreference();        this.loadThemePreference();        this.loadUnlockedCupcakes(); // Load gallery state        this.scanGridAndUnlockRevealed(); // Initial scan        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
     }
 
     // Renamed from move to onUserMove to avoid clash with Game.move if Game instance needs to call a GM.move
@@ -754,6 +956,7 @@ class GameManager {
             this.stopAutoPlay();
         }
         this.game.restart();
+        this.actuator.gameInstance = this.game; // 确保引用正确
         this.scanGridAndUnlockRevealed(); // Scan after restart
         // No need to update gallery display here, scanGridAndUnlockRevealed will if changes are made
     }
@@ -849,7 +1052,42 @@ class GameManager {
 
     toggleTheme() {
         document.body.classList.toggle('dark-theme');
-        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        const isDark = document.body.classList.contains('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        this.updateThemeIcon(isDark);
+    }
+    
+    updateThemeIcon(isDark) {
+        const themeIcon = document.querySelector('.theme-icon');
+        if (themeIcon) {
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+        }
+    }
+    
+    loadThemePreference() {
+        const savedTheme = localStorage.getItem('theme');
+        const isDark = savedTheme === 'dark';
+        if (isDark) {
+            document.body.classList.add('dark-theme');
+        }
+        this.updateThemeIcon(isDark);
+    }
+
+    toggleShowNumbers() {
+        const gridContainer = document.querySelector('.grid-container');
+        const showNumbersButton = document.getElementById('show-numbers-btn');
+        
+        gridContainer.classList.toggle('show-numbers');
+        
+        if (gridContainer.classList.contains('show-numbers')) {
+            showNumbersButton.textContent = 'Hide Numbers';
+            showNumbersButton.classList.add('active');
+            localStorage.setItem('showNumbers', 'true');
+        } else {
+            showNumbersButton.textContent = 'Show Numbers';
+            showNumbersButton.classList.remove('active');
+            localStorage.setItem('showNumbers', 'false');
+        }
     }
 
     setAISpeed(speed) {
@@ -871,6 +1109,22 @@ class GameManager {
         if (savedSpeed) {
             this.autoPlaySpeedSetting = parseInt(savedSpeed, 10);
             this.autoPlayDelay = this.autoPlaySpeedSetting;
+        }
+    }
+
+    loadShowNumbersPreference() {
+        const showNumbers = localStorage.getItem('showNumbers');
+        const gridContainer = document.querySelector('.grid-container');
+        const showNumbersButton = document.getElementById('show-numbers-btn');
+        
+        if (showNumbers === 'true') {
+            gridContainer.classList.add('show-numbers');
+            showNumbersButton.textContent = 'Hide Numbers';
+            showNumbersButton.classList.add('active');
+        } else {
+            gridContainer.classList.remove('show-numbers');
+            showNumbersButton.textContent = 'Show Numbers';
+            showNumbersButton.classList.remove('active');
         }
     }
 
@@ -1201,6 +1455,6 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('dark-theme');
     }
 
-    // Start the game
-    new GameManager();
+    // Start the game and make it globally accessible
+    window.gameManager = new GameManager();
 }); 
