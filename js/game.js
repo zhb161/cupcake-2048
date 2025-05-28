@@ -794,13 +794,26 @@ class HTMLActuator {
 
     // 计算效率指数
     calculateEfficiency(maxTile, moves) {
-        const efficiencyScore = (Math.log2(maxTile) * 100) / moves;
+        // 基于瓦片的期望步数（相对宽松的标准）
+        const expectedMoves = {
+            2: 5, 4: 10, 8: 25, 16: 60, 32: 120, 64: 200, 
+            128: 320, 256: 480, 512: 680, 1024: 920, 2048: 1200,
+            4096: 1600, 8192: 2200, 16384: 3000, 32768: 4200,
+            65536: 6000, 131072: 8500
+        };
+        
+        const expected = expectedMoves[maxTile] || (Math.log2(maxTile) * 120);
+        const ratio = expected / moves;
+        
+        // 使用曲线让更多玩家能获得好成绩
+        let efficiencyScore = Math.sqrt(ratio) * 100;
+        efficiencyScore = Math.min(100, efficiencyScore);
 
-        if (efficiencyScore >= 0.8) return 'S';
-        if (efficiencyScore >= 0.6) return 'A';
-        if (efficiencyScore >= 0.4) return 'B';
-        if (efficiencyScore >= 0.2) return 'C';
-        return 'D';
+        if (efficiencyScore >= 90) return 'S';      // 顶级高手
+        if (efficiencyScore >= 75) return 'A';      // 优秀
+        if (efficiencyScore >= 60) return 'B';      // 良好  
+        if (efficiencyScore >= 45) return 'C';      // 一般
+        return 'D';                                  // 还需努力
     }
 
     // 计算超越百分比
