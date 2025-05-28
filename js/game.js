@@ -14,6 +14,13 @@ class Game {
         this.actuator = actuator;
         this.moveCount = 0; // 添加移动次数统计
         this.gameStartTime = Date.now(); // 添加游戏开始时间
+        
+        // 无尽模式相关属性
+        this.endlessMode = false;
+        this.currentTarget = 2048;
+        this.targetMilestones = [2048, 4096, 8192, 16384, 32768, 65536, 131072];
+        this.achievedMilestones = new Set();
+        
         this.setup();
     }
 
@@ -149,8 +156,13 @@ class Game {
                         // Update the score
                         this.score += merged.value;
 
-                        // Check if we've won
-                        if (merged.value === 2048) this.won = true;
+                        // 检查里程碑
+                        this.checkMilestones(merged.value);
+
+                        // Check if we've won (只在非无尽模式下检查2048胜利)
+                        if (merged.value === 2048 && !this.endlessMode) {
+                            this.won = true;
+                        }
                     } else {
                         this.moveTile(tile, positions.farthest);
                     }
@@ -325,6 +337,70 @@ class Game {
         });
         return { grid, moved };
     }
+
+    // 启动无尽模式
+    startEndlessMode() {
+        this.endlessMode = true;
+        this.keepPlaying = true;
+        this.won = false; // 重置胜利状态，允许继续游戏
+        
+        // 如果已经达到2048，将当前目标设为下一个里程碑
+        if (this.achievedMilestones.has(2048)) {
+            this.currentTarget = this.getNextTarget();
+        }
+        
+        // 清除结算界面
+        this.actuator.clearMessage();
+        
+        // 重新激活游戏
+        this.actuate();
+    }
+
+    // 获取下一个目标
+    getNextTarget() {
+        for (const milestone of this.targetMilestones) {
+            if (!this.achievedMilestones.has(milestone)) {
+                return milestone;
+            }
+        }
+        return this.targetMilestones[this.targetMilestones.length - 1]; // 返回最高目标
+    }
+
+    // 检查是否达到新的里程碑
+    checkMilestones(value) {
+        if (this.targetMilestones.includes(value) && !this.achievedMilestones.has(value)) {
+            this.achievedMilestones.add(value);
+            
+            if (this.endlessMode && value === this.currentTarget) {
+                // 在无尽模式中达到当前目标
+                const nextTarget = this.getNextTarget();
+                if (nextTarget !== this.currentTarget) {
+                    this.currentTarget = nextTarget;
+                    // 显示里程碑达成消息（但不结束游戏）
+                    this.showMilestoneAchieved(value);
+                } else {
+                    // 达到了最终目标
+                    this.showUltimateMilestone(value);
+                }
+            } else if (value === 2048 && !this.endlessMode) {
+                // 首次达到2048
+                this.won = true;
+            }
+        }
+    }
+
+    // 显示里程碑达成消息
+    showMilestoneAchieved(value) {
+        // 这里可以添加一个临时的祝贺消息，不阻止游戏继续
+        console.log(`Milestone achieved: ${value}! Next target: ${this.currentTarget}`);
+        // 可以考虑添加一个非阻塞的通知系统
+    }
+
+    // 显示终极里程碑
+    showUltimateMilestone(value) {
+        console.log(`Ultimate milestone achieved: ${value}! You are a true master!`);
+        // 在无尽模式中，即使达到最高目标也可以继续游戏
+    }
 }
 
 // Grid class
@@ -490,6 +566,11 @@ class HTMLActuator {
 
                     // 清除消息界面
                     this.clearMessage();
+                } else if (button && button.id === 'endless-mode-button') {
+                    // 处理无尽模式按钮点击
+                    if (window.gameManager && window.gameManager.game) {
+                        window.gameManager.game.startEndlessMode();
+                    }
                 }
             }
         });
@@ -508,7 +589,13 @@ class HTMLActuator {
             256: 'Royal Blue Cupcake',
             512: 'Caramel Cupcake',
             1024: 'Pink Champagne Cupcake',
-            2048: 'Christmas Cupcake'
+            2048: 'Christmas Cupcake',
+            4096: 'Galaxy Cupcake',
+            8192: 'Unicorn Cupcake',
+            16384: 'Gold Flake Cupcake',
+            32768: 'Diamond Frost Cupcake',
+            65536: 'Royal Crown Cupcake',
+            131072: 'Ultimate Rainbow Delight Cupcake'
         };
         return names[value] || 'Cupcake';
     }
@@ -720,7 +807,9 @@ class HTMLActuator {
     calculateRankPercentage(maxTile) {
         const percentageMap = {
             2: 15, 4: 25, 8: 35, 16: 45, 32: 55, 64: 65,
-            128: 75, 256: 82, 512: 88, 1024: 93, 2048: 97, 4096: 99
+            128: 75, 256: 82, 512: 88, 1024: 93, 2048: 97, 
+            4096: 99, 8192: 99.5, 16384: 99.8, 32768: 99.9, 
+            65536: 99.95, 131072: 99.99
         };
         return percentageMap[maxTile] || 15;
     }
@@ -738,7 +827,13 @@ class HTMLActuator {
             256: 'royal-blue-cupcake',
             512: 'caramel-cupcake',
             1024: 'pink-champagne-cupcake',
-            2048: 'christmas-cupcake'
+            2048: 'christmas-cupcake',
+            4096: 'galaxy-cupcake',
+            8192: 'unicorn-cupcake',
+            16384: 'gold-flake-cupcake',
+            32768: 'diamond-frost-cupcake',
+            65536: 'royal-crown-cupcake',
+            131072: 'ultimate-rainbow-delight-cupcake'
         };
         return imageNames[value] || 'vanilla-cupcake';
     }
@@ -769,6 +864,16 @@ class HTMLActuator {
         document.getElementById('result-moves').textContent = stats.moves;
         document.getElementById('result-time').textContent = stats.gameTime;
         document.getElementById('result-efficiency').textContent = stats.efficiency;
+
+        // 处理无尽模式按钮显示逻辑
+        const endlessButton = document.getElementById('endless-mode-button');
+        if (won && stats.maxTile === 2048 && this.gameInstance && !this.gameInstance.endlessMode) {
+            // 首次达到2048且不在无尽模式中，显示无尽模式按钮
+            endlessButton.style.display = 'flex';
+        } else {
+            // 其他情况隐藏按钮
+            endlessButton.style.display = 'none';
+        }
     }
 
     // 获取结果标题
@@ -941,7 +1046,14 @@ class GameManager {
         document.getElementById('ai-speed-medium').addEventListener('click', () => this.setAISpeed(this.SPEED_MEDIUM));
         document.getElementById('ai-speed-fast').addEventListener('click', () => this.setAISpeed(this.SPEED_FAST));
 
-        this.loadAISpeedPreference(); this.updateSpeedButtonUI(); this.loadShowNumbersPreference(); this.loadThemePreference(); this.loadUnlockedCupcakes(); // Load gallery state        this.scanGridAndUnlockRevealed(); // Initial scan        this.updateCupcakeGalleryDisplay(); // Initial gallery display update
+        // 加载各种设置和状态
+        this.loadAISpeedPreference();
+        this.updateSpeedButtonUI();
+        this.loadShowNumbersPreference();
+        this.loadThemePreference();
+        this.loadUnlockedCupcakes(); // 加载蛋糕解锁状态
+        this.scanGridAndUnlockRevealed(); // 初始扫描
+        this.updateCupcakeGalleryDisplay(); // 初始化画廊显示
     }
 
     // Renamed from move to onUserMove to avoid clash with Game.move if Game instance needs to call a GM.move
@@ -964,6 +1076,24 @@ class GameManager {
     keepPlaying() {
         this.game.keepPlaying = true;
         this.actuator.clearMessage();
+    }
+
+    // 重置蛋糕解锁状态（用于测试）
+    resetUnlockedCupcakes() {
+        this.unlockedCupcakes = new Set([2, 4]);
+        this.saveUnlockedCupcakes();
+        this.updateCupcakeGalleryDisplay();
+        console.log("Cupcake unlock status has been reset to default (2, 4)");
+    }
+
+    // 手动测试解锁功能
+    testUnlockCupcakes() {
+        console.log("Testing cupcake unlock functionality...");
+        const testValues = [8, 16, 32, 64, 128];
+        testValues.forEach(value => {
+            this.checkAndUnlockCupcake(value);
+        });
+        console.log("Test complete. All unlocked cupcakes:", Array.from(this.unlockedCupcakes));
     }
 
     toggleAutoPlay() {
@@ -1161,12 +1291,14 @@ class GameManager {
                 this.unlockedCupcakes = new Set([2, 4]); // Fallback on error
             }
         } else {
-            // If nothing saved, defaults are already set (2, 4)
+            // 如果没有保存的数据，只解锁2和4
+            this.unlockedCupcakes = new Set([2, 4]);
         }
     }
 
     saveUnlockedCupcakes() {
-        localStorage.setItem(this.localStorageKeyUnlocked, JSON.stringify(Array.from(this.unlockedCupcakes)));
+        const dataToSave = Array.from(this.unlockedCupcakes);
+        localStorage.setItem(this.localStorageKeyUnlocked, JSON.stringify(dataToSave));
     }
 
     checkAndUnlockCupcake(value) {
@@ -1196,6 +1328,7 @@ class GameManager {
 
     updateCupcakeGalleryDisplay(newlyUnlockedValue = null) {
         const galleryItems = document.querySelectorAll('.cupcake-gallery .cupcake-item');
+        
         galleryItems.forEach(item => {
             const value = parseInt(item.dataset.value, 10);
             item.classList.remove('newly-unlocked'); // Clear previous animation class
@@ -1205,9 +1338,6 @@ class GameManager {
                 if (value === newlyUnlockedValue) {
                     // Apply animation for the newly unlocked item
                     item.classList.add('newly-unlocked');
-                    // Consider removing the class after animation, or rely on animation-fill-mode
-                    // For simplicity, we might remove it after a timeout if CSS doesn't handle it well
-                    // setTimeout(() => item.classList.remove('newly-unlocked'), 800); // Match animation duration
                 }
             } else {
                 item.classList.add('locked');

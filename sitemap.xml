@@ -87,6 +87,42 @@
       <image:caption>2048 Cupcakes - Sweet Puzzle Game Preview</image:caption>
       <image:title>2048 Cupcakes Game Preview</image:title>
     </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/4096–galaxy-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Galaxy Cupcake</image:caption>
+      <image:title>Galaxy Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/8192–unicorn-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Unicorn Cupcake</image:caption>
+      <image:title>Unicorn Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/16384–gold-flake-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Gold Flake Cupcake</image:caption>
+      <image:title>Gold Flake Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/32768–diamond-frost-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Diamond Frost Cupcake</image:caption>
+      <image:title>Diamond Frost Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/65536–royal-crown-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Royal Crown Cupcake</image:caption>
+      <image:title>Royal Crown Cupcake</image:title>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://2048-cupcakes.app/img/131072–ultimate-rainbow-delight-cupcake.webp</image:loc>
+      <image:caption>2048 Cupcakes - Ultimate Rainbow Delight Cupcake</image:caption>
+      <image:title>Ultimate Rainbow Delight Cupcake</image:title>
+    </image:image>
   </url>
   
 </urlset> 

@@ -19,6 +19,12 @@ const urlsToCache = [
   '/img/512-caramel-cupcake.webp',
   '/img/1024-pink-champagne-cupcake.webp',
   '/img/2048-christmas-cupcake.webp',
+  '/img/4096–galaxy-cupcake.webp',
+  '/img/8192–unicorn-cupcake.webp',
+  '/img/16384–gold-flake-cupcake.webp',
+  '/img/32768–diamond-frost-cupcake.webp',
+  '/img/65536–royal-crown-cupcake.webp',
+  '/img/131072–ultimate-rainbow-delight-cupcake.webp',
   '/img/icons/icon-192x192.png',
   '/img/icons/icon-512x512.png'
 ];

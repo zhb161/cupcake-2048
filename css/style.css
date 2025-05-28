@@ -328,6 +328,30 @@ main {
     background-image: url('../img/2048-christmas-cupcake.webp');
 }
 
+.tile-4096 {
+    background-image: url('../img/4096–galaxy-cupcake.webp');
+}
+
+.tile-8192 {
+    background-image: url('../img/8192–unicorn-cupcake.webp');
+}
+
+.tile-16384 {
+    background-image: url('../img/16384–gold-flake-cupcake.webp');
+}
+
+.tile-32768 {
+    background-image: url('../img/32768–diamond-frost-cupcake.webp');
+}
+
+.tile-65536 {
+    background-image: url('../img/65536–royal-crown-cupcake.webp');
+}
+
+.tile-131072 {
+    background-image: url('../img/131072–ultimate-rainbow-delight-cupcake.webp');
+}
+
 /* Number overlay styles for Show Numbers feature */
 .tile-number {
     position: absolute;
@@ -705,6 +729,32 @@ main {
     gap: 8px;
     min-width: 140px;
     justify-content: center;
+}
+
+/* 无尽模式按钮特殊样式 */
+#endless-mode-button {
+    background: linear-gradient(135deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FECA57);
+    background-size: 200% 200%;
+    animation: endlessGradient 3s ease infinite;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+#endless-mode-button:hover {
+    transform: translateY(-4px) scale(1.08);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+    animation-duration: 1.5s;
+}
+
+@keyframes endlessGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .game-message.game-won .game-message-buttons button {

@@ -23,7 +23,8 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#F8B195">
     <meta property="og:title" content="2048 Cupcakes - Sweet Puzzle Game">
-    <meta property="og:description" content="Play 2048 Cupcakes, a sweet puzzle game! Combine adorable cupcakes to reach the 2048 tile.">
+    <meta property="og:description"
+        content="Play 2048 Cupcakes, a sweet puzzle game! Combine adorable cupcakes to reach the 2048 tile.">
     <meta property="og:image" content="https://2048-cupcakes.app/img/description.png">
     <meta property="og:url" content="https://2048-cupcakes.app">
     <meta property="og:type" content="website">
@@ -147,7 +148,7 @@
 
                         <div class="result-brand">
                             <div class="brand-line"></div>
-                            <span class="brand-text">2048s.fun</span>
+                            <span class="brand-text">2048-cupcakes.app</span>
                             <div class="brand-line"></div>
                         </div>
 
@@ -155,6 +156,10 @@
                             <button id="retry-button">
                                 <span class="btn-icon">🔄</span>
                                 Try Again
+                            </button>
+                            <button id="endless-mode-button" style="display: none;">
+                                <span class="btn-icon">🚀</span>
+                                Challenge Endless Mode
                             </button>
                         </div>
                     </div>
@@ -193,41 +198,66 @@
                             <img src="img/4-strawberry-vanilla-cupcake.webp" alt="4 - Strawberry Vanilla Cupcake">
                             <p>4</p>
                         </div>
-                        <div class="cupcake-item" data-value="8">
+                        <div class="cupcake-item locked" data-value="8">
                             <img src="img/8-lemon-cupcake.webp" alt="8 - Lemon Cupcake">
                             <p>8</p>
                         </div>
-                        <div class="cupcake-item" data-value="16">
+                        <div class="cupcake-item locked" data-value="16">
                             <img src="img/16-red-velvet-cupcake.webp" alt="16 - Red Velvet Cupcake">
                             <p>16</p>
                         </div>
-                        <div class="cupcake-item" data-value="32">
+                        <div class="cupcake-item locked" data-value="32">
                             <img src="img/32-mint-cupcake.webp" alt="32 - Mint Cupcake">
                             <p>32</p>
                         </div>
-                        <div class="cupcake-item" data-value="64">
+                        <div class="cupcake-item locked" data-value="64">
                             <img src="img/64-jumbo-oreo-cupcake.webp" alt="64 - Jumbo Oreo Cupcake">
                             <p>64</p>
                         </div>
-                        <div class="cupcake-item" data-value="128">
+                        <div class="cupcake-item locked" data-value="128">
                             <img src="img/128-birthday-cupcake.webp" alt="128 - Birthday Cupcake">
                             <p>128</p>
                         </div>
-                        <div class="cupcake-item" data-value="256">
+                        <div class="cupcake-item locked" data-value="256">
                             <img src="img/256-royal-blue-cupcake.webp" alt="256 - Royal Blue Cupcake">
                             <p>256</p>
                         </div>
-                        <div class="cupcake-item" data-value="512">
+                        <div class="cupcake-item locked" data-value="512">
                             <img src="img/512-caramel-cupcake.webp" alt="512 - Caramel Cupcake">
                             <p>512</p>
                         </div>
-                        <div class="cupcake-item" data-value="1024">
+                        <div class="cupcake-item locked" data-value="1024">
                             <img src="img/1024-pink-champagne-cupcake.webp" alt="1024 - Pink Champagne Cupcake">
                             <p>1024</p>
                         </div>
-                        <div class="cupcake-item" data-value="2048">
+                        <div class="cupcake-item locked" data-value="2048">
                             <img src="img/2048-christmas-cupcake.webp" alt="2048 - Christmas Cupcake">
                             <p>2048</p>
+                        </div>
+                        <div class="cupcake-item locked" data-value="4096">
+                            <img src="img/4096–galaxy-cupcake.webp" alt="4096 - Galaxy Cupcake">
+                            <p>4096</p>
+                        </div>
+                        <div class="cupcake-item locked" data-value="8192">
+                            <img src="img/8192–unicorn-cupcake.webp" alt="8192 - Unicorn Cupcake">
+                            <p>8192</p>
+                        </div>
+                        <div class="cupcake-item locked" data-value="16384">
+                            <img src="img/16384–gold-flake-cupcake.webp" alt="16384 - Gold Flake Cupcake">
+                            <p>16384</p>
+                        </div>
+                        <div class="cupcake-item locked" data-value="32768">
+                            <img src="img/32768–diamond-frost-cupcake.webp" alt="32768 - Diamond Frost Cupcake">
+                            <p>32768</p>
+                        </div>
+                        <div class="cupcake-item locked" data-value="65536">
+                            <img src="img/65536–royal-crown-cupcake.webp" alt="65536 - Royal Crown Cupcake">
+                            <p>65536</p>
+                        </div>
+                        <div class="cupcake-item locked" data-value="131072">
+                            <img src="img/131072–ultimate-rainbow-delight-cupcake.webp"
+                                alt="131072 - Ultimate Rainbow Delight Cupcake">
+                            <p>131072</p>
                         </div>
                     </div>
                 </div>
@@ -273,17 +303,17 @@
 
     <script src="js/game.js"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-              console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            })
-            .catch(error => {
-              console.log('ServiceWorker registration failed: ', error);
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
             });
-        });
-      }
+        }
     </script>
 </body>
 
