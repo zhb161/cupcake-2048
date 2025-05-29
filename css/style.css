@@ -329,27 +329,27 @@ main {
 }
 
 .tile-4096 {
-    background-image: url('../img/4096–galaxy-cupcake.webp');
+    background-image: url('../img/4096-galaxy-cupcake.webp');
 }
 
 .tile-8192 {
-    background-image: url('../img/8192–unicorn-cupcake.webp');
+    background-image: url('../img/8192-unicorn-cupcake.webp');
 }
 
 .tile-16384 {
-    background-image: url('../img/16384–gold-flake-cupcake.webp');
+    background-image: url('../img/16384-gold-flake-cupcake.webp');
 }
 
 .tile-32768 {
-    background-image: url('../img/32768–diamond-frost-cupcake.webp');
+    background-image: url('../img/32768-diamond-frost-cupcake.webp');
 }
 
 .tile-65536 {
-    background-image: url('../img/65536–royal-crown-cupcake.webp');
+    background-image: url('../img/65536-royal-crown-cupcake.webp');
 }
 
 .tile-131072 {
-    background-image: url('../img/131072–ultimate-rainbow-delight-cupcake.webp');
+    background-image: url('../img/131072-ultimate-rainbow-delight-cupcake.webp');
 }
 
 /* Number overlay styles for Show Numbers feature */
